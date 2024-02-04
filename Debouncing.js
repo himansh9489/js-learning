@@ -1,3 +1,6 @@
+// Debouning -> time Defference between
+// two keypress events
+
 // Debouncing function
 function debounce(func, delay) {
   let timeoutId;
@@ -13,8 +16,8 @@ function debounce(func, delay) {
       func.apply(this, args);
       // here this = window (global object)
       // we are calling the func with reference to window
-      // which we don't need to bcz func passed to debounce
-      // is wriitten in window only
+      // which even if we don't it will work bcz func
+      // passed to debounce is wriitten in window only
     }, delay);
   };
 }

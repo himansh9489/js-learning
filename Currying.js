@@ -1,19 +1,33 @@
-// // Non-curried function
-// function add(x, y, z) {
-//   return x + y + z;
+// Currying is a technique in functional programming where
+// a function with multiple arguments is transformed into
+// a sequence of functions, each taking a single argument.
+// In JavaScript, you can achieve currying using closures
+// and function chaining.
+
+// by bind method and function chaining
+// function multiply(x, y) {
+//   console.log(x * y);
 // }
 
-// console.log(add(2, 3, 4)); // Output: 9
+// let multiplyByTwo = multiply.bind(this, 2);
 
-// // Curried version of the add function
-// function curryAdd(x) {
-//   return function (y) {
-//     return function (z) {
-//       return x + y + z;
-//     };
-//   };
-// }
+// multiplyByTwo(4);
 
-// const curriedAdd = curryAdd(2);
+// let multiplyByThree = multiply.bind(this, 3);
 
-// console.log(curriedAdd(3)(4)); // Output: 9
+// multiplyByThree(4);
+
+// by using closer
+let multiply1 = function (x) {
+  return (y) => {
+    console.log(x * y);
+  };
+};
+
+let multiplyByTwo = multiply1(2);
+
+multiplyByTwo(2);
+
+let multiplyByThree = multiply1(3);
+
+multiplyByThree(2);
