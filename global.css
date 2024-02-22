@@ -40,3 +40,19 @@ canvas {
     border: 1px solid black;
 
 }
+.dropdown_container {
+    position: relative;
+    cursor: pointer;
+}
+
+.body {
+    position: absolute;
+    top: 15px;
+    background: white;
+    border: 0.5px solid #ccc;
+    display: none;
+}
+
+.show {
+    display: block;
+}
