@@ -16,17 +16,17 @@ async function getTopAnime(e) {
   console.log("top anime", result);
 }
 
-function debounce(func) {
+function debounce(func, delay) {
   let id;
   return function (query) {
     clearTimeout(id);
     id = setTimeout(() => {
       console.log("api call");
       func.call(this, query);
-    }, 1500);
+    }, delay);
   };
 }
-const debounceSearchAnime = debounce(searchAnime);
+const debounceSearchAnime = debounce(searchAnime, 1500);
 
 document.getElementById("myInput").addEventListener("input", (e) => {
   debounceSearchAnime(e.target.value);
