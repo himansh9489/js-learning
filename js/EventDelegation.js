@@ -27,7 +27,7 @@ document.querySelector("#form").addEventListener("keydown", (e) => {
 
 // -> Event Targeting needs to be accurately
 // -> Not all events can be bubble up
-// -> Needs addintion conditional logic
+// -> Needs additional conditional logic
 
 // Not bubbling events ->
 // focus, blur, input ,load,unload,play,pause,volumechange

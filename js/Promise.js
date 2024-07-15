@@ -43,13 +43,13 @@ const createOrder = function (cart) {
   });
 };
 
-const proccedToPayment = function (orderId) {
+const proceedToPayment = function (orderId) {
   return new Promise((resolve, reject) => {
     if (!orderId) {
       reject(new Error("could not proceed to payment"));
     }
     // logic for proceedToPayment
-    const res = { msg: "payment successfull", status: "SUCCESS" };
+    const res = { msg: "payment successful", status: "SUCCESS" };
     if (res) {
       // imitating api call by adding delay in response
       setTimeout(() => resolve(res), 1500);

@@ -4,5 +4,5 @@ const sum = function (a) {
     return a;
   };
 };
-const sum1 = (a) => (b) => b ? sum(a + b) : a;
+const sum1 = (a) => (b) => b ? sum1(a + b) : a;
 console.log(sum1(2)(3)(5)());

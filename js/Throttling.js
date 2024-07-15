@@ -27,6 +27,17 @@ function Throttling(func, delay) {
     }
   };
 }
+// function Throttling(func, delay) {
+//   let flag = true;
+//   return function (...args) {
+//     if (flag) {
+//       console.log(`Throttling after ${delay}ms`);
+//       func.apply(this, args);
+//       flag = false;
+//       setTimeout(() => (flag = true), delay);
+//     }
+//   };
+// }
 // Function to handle input1 change
 function handleInputChange() {
   const textboxValue = document.getElementById("myInput").value;

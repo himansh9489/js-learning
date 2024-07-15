@@ -46,7 +46,7 @@ d(1, 2); // arguments
 
 // First-Class Functions
 // -> the ability to use function as values is known as first class funtions
-// -> ex1 - passing a fun as argument int0 another function,
+// -> ex1 - passing a fun as argument into  another function,
 // -> ex2 - returning a func as output from another function.
 
 // chatGPT
