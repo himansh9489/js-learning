@@ -22,7 +22,7 @@ const p3 = new Promise((resolve, reject) => {
 // input promises, in the same order as the input. 
 // If any promise in the iterable rejects, the entire Promise.all rejects 
 // immediately with that rejection reason.
-Promise.allSettled([p1, p2, p3])
+Promise.all([p1, p2, p3])
   .then((res) => {
     console.log("all", res);
   })
