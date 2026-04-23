@@ -22,7 +22,7 @@ printFullName.call(name2, "Bhopla", "Hariyana");
 printFullName.apply(name1, ["Bhopla", "Hariyana"]);
 printFullName.apply(name2, ["Bhopla", "Hariyana"]);
 
-// call and apply -> funciton call happens immediately
+// call and apply -> function call happens immediately
 // bind use case
 // returns a function with the "this" reference binding.
 // can be used later

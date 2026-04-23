@@ -1,20 +1,32 @@
-body {
+* {
     box-sizing: border-box;
+}
+
+body {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
 input {
-    height: 30px;
+    height: 42px;
     padding-left: 12px;
 }
+
 button {
-    height: 38px;
-}
+    height: 40px;
+        width: 300px;
+        /* transform: translate(50%, 50%); */
+        rotate: 0deg;
+        transform-origin: center;
+        /*  animation: buzz .5s ease infinite forwards; */
+    }
 
 canvas {
     border: 1px solid #000;
+}
+.heading {
+    text-align: center;
 }
 .grandparent {
     width: 100%;
@@ -40,6 +52,7 @@ canvas {
     border: 1px solid black;
 
 }
+
 .dropdown_container {
     position: relative;
     cursor: pointer;
@@ -56,8 +69,80 @@ canvas {
 .show {
     display: block;
 }
+
 @media (max-width:767px) {
     button {
         background-color: red;
     }
+}
+@keyframes buzz {
+    0% {
+        rotate: 0deg;
+    }
+
+    25% {
+        rotate: 13deg;
+    }
+
+    50% {
+        rotate: 0deg;
+    }
+
+    75% {
+        rotate: -13deg;
+    }
+
+    100% {
+        rotate: 0deg;
+    }
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
 }

@@ -26,8 +26,8 @@ let multiply1 = function (x) {
 
 let multiplyByTwo = multiply1(2);
 
-multiplyByTwo(2);
+multiplyByTwo(5);
 
 let multiplyByThree = multiply1(3);
 
-multiplyByThree(2);
+multiplyByThree(5);

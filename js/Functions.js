@@ -13,7 +13,7 @@ var b = function () {
 };
 //...
 
-// Difference between Function Statment and Function Expression
+// Difference between Function Statement and Function Expression
 // -> a can be called before its declaration (hoisting)
 // -> b will through error bcz b is undefined at that moment (hoisting)
 //...

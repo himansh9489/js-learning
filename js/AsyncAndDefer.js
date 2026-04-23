@@ -4,8 +4,8 @@
 // In this case, the script is loaded and
 // executed synchronously, blocking the
 // HTML parsing until the script is fully
-// downloaded and executed. If the script i
-// s placed in the <head> section, it may
+// downloaded and executed. If the script is
+// placed in the <head> section, it may
 // delay the rendering of the page content.
 
 // With async:
@@ -28,4 +28,4 @@
 // is complete. Multiple scripts with defer will
 // be executed in the order they appear in the HTML.
 // This is useful when the script relies on the
-//  DOM structure or other scripts.
+// DOM structure or other scripts.

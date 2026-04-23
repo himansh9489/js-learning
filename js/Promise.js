@@ -2,7 +2,7 @@ const cart = ["shoes", "pants", "kurta"];
 
 // Disadvantages of call back
 // -> callback hell
-// -> inversion of controle
+// -> inversion of control
 // eg :-
 
 // createOrder(cart, function (orderId) {
