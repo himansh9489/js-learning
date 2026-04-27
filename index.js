@@ -1,46 +1,34 @@
-function printName(...args) {
-  console.log(this.name);
-  console.log(...args);
+// Variation 1: Infinite curry with terminal () call.
+// sumUntilEmpty(1)(2)(3)(4)() -> 10
+
+function sumUntilEmpty(a) {
+  return function (b) {
+    if (b) {
+      return sumUntilEmpty(a + b);
+    }
+    return a;
+  };
 }
+const sum = (a) => (b) => (b ? sum(a + b) : a);
 
-const name1 = {
-  name: "Himasnhu",
-};
+console.log(sum(1)(2)(3)(4)());
 
-Function.prototype.myBind = function (context, ...args) {
-  if (typeof fn !== "function") {
-    throw new TypeError("myBing must be called on a function");
+// Variation 2: Infinite curry without final ().
+// Uses JS coercion via valueOf/toString.
+// +sumNoTerminal(1)(2)(3) -> 6
+function sumNoTerminal(a) {
+  function inner(b) {
+    return sumNoTerminal(a + b);
   }
 
-  return function (...args2) {
-    return this.apply(context, [...args, ...args2]);
+  inner.valueOf = function () {
+    return a;
   };
-};
 
-const printName1 = printName.myBind(null, "Gwalior", "MP");
-printName1("Bharat");
-
-// Polyfill for Function.prototype.apply
-if (!Function.prototype.myApply) {
-  Function.prototype.myApply = function (thisArg, argsArray) {
-    if (typeof this !== "function") {
-      throw new TypeError("myApply must be called on a function");
-    }
-
-    const context = thisArg == null ? globalThis : Object(thisArg);
-    const fnKey = Symbol("fn");
-    context[fnKey] = this;
-
-    let result;
-    if (argsArray == null) {
-      result = context[fnKey]();
-    } else {
-      // apply accepts array-like/iterable values
-      const args = Array.from(argsArray);
-      result = context[fnKey](...args);
-    }
-
-    delete context[fnKey];
-    return result;
+  inner.toString = function () {
+    return String(a);
   };
+  return inner;
 }
+
+console.log(+sumNoTerminal(1)(2)(3));
