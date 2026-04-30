@@ -1,0 +1,1588 @@
+OOP in JS - https://slides.com/arfatsalman/oop-in-js
+DOM - https://slides.com/arfatsalman/dom
+Prototypes - https://slides.com/arfatsalman/deck-dbf3f3
+
+rm -rf .parcel-cache (to remove cache)
+
+utsav
+. functional programming
+			*		Functional programming is the process of building software by constructing pure functions.
+			*		Where we use method chaining.
+			.		Functional programming is declarative rather than imperative.
+
+. post vs get (when server state changes then we use post)
+
+. res
+	setData(e=>{return{…e, day: res.dayWise.map(each=>each.value)}})
+	setData(e=>{return{…e, week: res.weekWise.map(each=>each.value)}})
+
+.	Convert float to integer	
+		let x = 4.67;
+		let z = x | 0;
+		console.log(z); => 4
+
+
+.	aync vs defer
+		. With simple script tag the html parsing starts and when script tag is encountered then html parsing stops and
+			script get fetched and then execute after that html parsing continue.
+		.	With aync the html parsing starts and script with async tag gets fetched parallel when fetching is done then
+			html parsing stops and scripts gets execute and then html parsing continue. But when our script are dependent 
+			on each other then we should not use 'async'.
+		.	With defer html parsing starts and scripts with defer are gets fetched in parallel then after html parsing 
+			complete then only scripts get execute.
+
+
+Q-	ES6 Features
+				Destructuring
+				Arrow functions
+				Template literals
+				Promises
+				Let and const
+				Spread operator
+				Default parameters
+				Classes
+				Modules 
+					.	Modules are the piece of a JavaScript code written in a file.
+					.	(we can export variables, functions, objects like export {fn})
+
+.		Flex-box
+			.	use for single dimension layouts
+			.	makes it easier to design flexible and responsive layout structure without using float or positioning.
+
+
+Shallow Copy vs Deep copy
+		.	Shallow copy: means that only the first level of the object is copied. Deeper levels are referenced.
+			Ex:- 	by spread operator
+						by Object.assign({}, obj);
+
+			After updating a property in the first level of the cloned objects, the original property is not updated.
+			After updating a property in a deeper level, the original property is also updated. 
+			This happens because, in this case, deeper levels are referenced, not copied.
+
+
+	.		Deep copy: means that all levels of the object are copied. This is a true copy of the object.
+			Ex:-	by JSON.parse(JSON.stringify(obj | arr));
+
+
+.	The Object.is() static method determines whether two values are the same value.
+			Object.is(0, -0)			// false
+			console.log(0 == -0) 	// true
+			console.log(0 === -0)	// true
+
+
+*	Browser does not understand scaling and rotation. (learned when developing image resizer in NCLC).
+
+
+Q => polyfill of valueOf()
+
+
+. 	create bind method yourself and polyfill :-
+
+		let name = {
+		  first: "Tarun",
+		  last: "Jangra"
+		}
+
+		let printName = function(city,state){
+		  console.log(this.first + " "+this.last+","+city+","+state);
+		}
+
+		Function.prototype.mybind = function(context={}, ...args){
+			if(typeof this !== 'function'){
+				throw new Error(this + "cannot be bound as it's not callable");
+			}
+			context.fn = this;
+			return function(...args2){
+			   context.fn(...args, ...args2);
+			}
+		}
+
+		let printMyName2 = printName.mybind(name,"Rewari");
+		printMyName2("Haryana");
+
+
+.	call() polyfill =>
+		
+		let car = {
+		  color: 'Red',
+		  company: 'Ferrari'
+		};
+
+		function purchaseCar(currency, price){
+		  console.log(`I have purchased ${this.color} - ${this.company} car for ${currency} ${price}`);
+		}
+
+		Function.prototype.myCall = function(context={}, ...args){
+		  if(typeof this !== 'function'){
+		    throw new Error(this + "It's not callable");
+		  }
+		  context.fn = this;
+		  context.fn(...args);
+		}
+
+		purchaseCar.myCall(car, "$", 5000000);
+
+
+
+.	apply() polyfill =>
+
+		let car = {
+		  color: 'Red',
+		  company: 'Ferrari'
+		};
+
+		function purchaseCar(currency, price){
+		  console.log(`I have purchased ${this.color} - ${this.company} car for ${currency} ${price}`);
+		};
+
+		Function.prototype.myApply = function(context={}, argsArray){
+		  if(typeof this !== 'function'){
+		    throw new Error(this + "It's not callable");
+		  }
+
+		  if(!Array.isArray(argsArray)){
+		  	throw new TypeError("CreateListFromArrayLike called on non-object");
+		  }
+
+		  context.fn = this;
+		  context.fn(...argsArray);
+		};
+
+		purchaseCar.myApply(car, ["$", 5000000]);
+
+
+.	map polyfill =>
+
+		let a = [1,2,3,4,5];
+		console.log(a.map((each)=>{
+		  return each*10;
+		}))
+
+		Array.prototype.map = null;
+
+		if(!Array.prototype.map){
+		  	Array.prototype.map = function(callback){
+			    let arr = [];
+			    for(let x of this){
+			      arr.push(callback(x));
+			    }
+			    return arr;
+		  	}
+		}
+
+		console.log(a.map((val)=>{
+		  return val * 2;
+		}))
+
+
+.	forEach polyfill =>
+		const arr = [1,2,3,4,5];
+		arr.forEach((each)=>{
+		  console.log(each*10);
+		})
+
+		Array.prototype.forEach = null;
+
+		Array.prototype.forEach = function(cb){
+		  let a = this;
+		  for(let i=0;i<a.length;i++){
+		    cb(this[i]);
+		  }
+		}
+
+		arr.forEach((val)=>{
+		  console.log(val*2);
+		})
+
+
+.	filter polyfill =>
+		const arr = [1,2,3,4,5];
+		console.log(arr.filter((each)=>{
+		  return each>3;
+		}))
+
+		Array.prototype.filter = null;
+
+		Array.prototype.filter = function(cb){
+		  let a = this;
+		  let res = [];
+		  for(let i=0;i<a.length;i++){
+		    let flag = cb(a[i]);
+		    if(flag){
+		      res.push(a[i]);
+		    }
+		  }
+		  return res;
+		}
+
+		console.log(arr.filter((val)=>{
+		  return val%2==0 && val;
+		}))
+
+
+.	reduce polyfill =>
+		const arr = [1,2,3,4,5];
+		console.log(arr.reduce((acc,curr)=>{
+		  return acc+curr+"";
+		},''));
+
+		Array.prototype.reduce = null;
+
+		Array.prototype.myReduce = function(cb,defaultAcc){
+		  let res = defaultAcc;
+		  for(let i=0;i<this.length;i++){
+		    res = cb(res, this[i], i, this);
+		  }
+		  return res;
+		}
+
+		console.log(arr.myReduce((acc, val, index, arr)=>{
+		  return acc + val;
+		},''))
+
+.	Debouncing polyfill	=>
+
+		let getData = (a) =>{
+			console.log("fetching data....",a);
+		}
+
+		function debouncing(fn, debounceTime){
+	    let timer;
+			return function(args){
+				let context = this;
+		    clearTimeout(timer);
+				timer = setTimeout(()=>{
+					fn.apply(context, args);
+				}, debounceTime)
+			}
+		}
+
+		const callDebounceApi = debouncing(getData, 1000);
+
+		function btnClicked() {
+      		callDebounceApi([20]);
+    	}
+
+
+.	var count = 0;
+
+    const myDebounce = (cb, debounceTime) => {
+      let timer;
+      return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          cb(...args);
+        }, debounceTime);
+      };
+    };
+
+    let debounceFn = myDebounce(() => {
+      count++;
+      console.log(count);
+    }, 2000);
+
+    function btnClicked() {
+      debounceFn();
+    }
+
+
+
+
+.	Throttling polyfill =>
+
+*		function getData() {
+		  console.log("called");
+		}
+
+		function throttle(fn, debounceTime) {
+		  let timer;
+		  return function (...args) {
+		    let context = this;
+		    if (!timer) { // untill timer not goes null or undefined don't call fn or setTimeout
+		      fn.apply(context, args);
+		      timer = setTimeout(() => {
+		        timer = null;
+		      }, debounceTime);
+		    }
+		  };
+		}
+
+		const throttledGetData = throttle(getData, 500);
+		throttledGetData();
+
+
+.		const expensive = () => {
+	      console.log("Expensive");
+	    };
+
+	    const throttle = (fn, limit) => {
+	      let flag = true;
+	      return function (...args) {
+	        let context = this;
+	        if (flag) {
+	          fn.apply(context, args);
+	          flag = false;
+	          setTimeout(() => {
+	            flag = true;
+	          }, limit);
+	        }
+	      };
+	    };
+
+	    let betterThrottle = throttle(expensive, 1000);
+
+		function btnClicked() {
+		  betterThrottle();
+		}
+
+
+
+	   
+.	    var count = 0;
+
+	    const myThrottle = (cb, d) => {
+	      let last = 0;
+	      return function (...args) {
+	        let now = new Date().getTime();
+	        if (now - last < d) {
+	          return;
+	        }
+	        last = now;
+	        return cb(...args);
+	      };
+	    };
+
+	    let throttleFn = myThrottle(() => {
+	      count++;
+	      console.log(count);
+	    }, 2000);
+
+	    function btnClicked() {
+	      throttleFn();
+	    }
+
+
+.	Array.find() Polyfill:-
+
+		if(!Array.prototype.find){
+		  Array.prototype.find = function(callback, thisArg){
+		    if(this == null){
+		      throw new TypeError("null or undefined");
+		    }
+		    
+		    if(typeof callback !== 'function'){
+		      throw new TypeError('Callback must be a function');
+		    }
+		    
+		    var list = Object(this);
+		    var length = list.length >>> 0;
+		    
+		    for(var i=0;i<length;i++){
+		      if(callback.call(thisArg, list[i], i, list)){ // check this line
+		        return list[i];
+		      }
+		    }
+		    
+		    return undefined;
+		  }
+		}
+
+
+.	findLastIndex()
+
+
+*	Promise Polyfill =>
+
+
+*	Array.from()
+
+
+.	Library vs Framework =>
+		Both libraries and frameworks are reusable code written by someone else. 
+		The technical difference between a framework and library lies in a term called inversion of control.
+		When you use a library, you are in charge of the flow of the application. 
+		You are choosing when and where to call the library. When you use a framework, 
+		the framework is in charge of the flow. It provides some places for you to plug in your code, 
+		but it calls the code you plugged in as needed.
+		Their purpose is to help you solve common problems in easier ways.
+
+
+.	append() vs appendChild() =>
+		const parent = document.createElement('div');
+		const child = document.createElement('p');
+
+		parent.append(child); 			// Works fine
+		parent.appendChild(child); 		// Works fine
+
+		parent.append('Hello world'); 			// Works fine
+		parent.appendChild('Hello world'); 		// Throws error
+
+
+https://codesandbox.io/s/quiz-pure-dom-l0k8x?file=/src/index.js:4889-4906
+
+.	Execution context:-
+				.	When the JavaScript engine scans a script file, it makes an environment called the 
+					Execution Context that handles the entire transformation and execution of the code.
+				.	During the context runtime, the parser parses the source code and allocates memory 
+					for the variables and functions. The source code is generated and gets executed.
+
+					Types of execution contexts: global and function context.
+						Global context are the ones which will be created when the main code block getting executed. 
+						Function context are the ones created by the functions inside the code block.
+
+					Also there is a concept of Call stack which works on the principal of LIFO which helps in code execution.
+
+				.	Execution context has two parts:-
+						Memory section and Code section. In memory section all the variables placed and get assigned a val. 
+						In code section our functions gets execute. Every functions creates a small Execution context.
+
+
+.	global execution name is anonymous.
+
+.	all execution context move to call stack.
+
+.	var always hoist in global and method scope.
+
+.	let & const =>
+				. hoisting doesn't apply on these varaibles.
+				.	they are not present in window object but in the temporal dead zone.	(if declared in global scope)
+				. temporal dead zone is time from declaring a varaible to assigning the value to let & const.
+				.	they cannot be accessed by window.a
+				.	cannot create another variable with same name.  (cannot redeclared)
+				. can update a constant array
+				.	can update a constant object
+				.	But you can NOT reassign the object:
+					Example :-  const car = {type:"Fiat", model:"500", color:"white"};
+								car = {type:"Volvo", model:"EX60", color:"red"};
+
+.	we cannot shadow let & const by var also
+									eg:-	const,let a = 10; 
+											{
+												var b = 20; 
+											}
+
+
+*		(function(){ 
+			var a = b = 10; 
+		})(); 
+		console.log(b);			// 10  (bcz we not specify type of b so it will be created at global level with value 10)
+
+.	const => can only be initialized at the time of initialization
+
+.	block => group of multiple statements where js expect a single statement.
+
+.	shadowing => let cannot be shadowed by using var.
+
+.	scope are same for normal function and arrow function.
+
+**	We can't change context of an arrow function by using call(), bind(), apply().
+
+.	this =>	this keyword refers to the object that is currently executing the code.
+
+	.		function x(){
+				console.log(this);	// window
+				function y(){
+					console.log(this);  // window
+					function z(){
+						console.log(this);  // window
+					}
+					z();
+				}
+				y();
+			}
+
+			x();
+
+	*		const user = {
+			  "firstName": "Tarun",
+			  "lastName": "Jangra",
+			 	"hobbies": ["gaming","coding"],
+			  "listHobbies": function(){
+			    this.hobbies.forEach(function(hobby){		//everything working according to this function
+			   	  console.log(this);						//// its not referring to anything so by default this is window.
+			      console.log(this.firstName);				//// undefined bcz this function has a new context.
+			    })									// but we can pass this in forEach as second arg
+			  }
+			}
+
+			user.listHobbies();
+
+*	we can pass this in forEach as second arg.
+
+
+.	"this" in array function is enclosing lexical context.
+
+.	this inside DOM is refrence to the HTML element from where our function get called.
+		<button onclick="alert(this)"> Click Me! </button>
+
+
+	.		const user = {
+			  "firstName": "Tarun",
+			  "lastName": "Jangra",
+			  "hobbies": ["gaming","coding"],
+			  "listHobbies": function(){
+			    console.log(this)
+			    this.hobbies.forEach((hobby) => {		// here we are using arrow function so it will have it's parents context
+			      console.log(this);
+			      console.log(this.firstName);
+			    })
+			  }
+			}
+
+			user.listHobbies();
+
+
+	.		const person = {
+			  name: "Tarun",
+			  print: function(){
+			    console.log(this);
+			  }
+			}
+
+			const person2 = {
+			  name: "utsav"
+			}
+
+			person.print();							// object person
+			person.print.call();				// window
+			person.print.call(this);		// window
+			person.print.call(person2);	// object person2
+
+
+	.		const obj = {
+			  name: "Tarun",
+			  print: function(){
+			    console.log(this.name);
+			  },
+			  print2: ()=>{
+			    console.log(this.name);
+			  },
+			}
+
+			obj.print();
+			obj.print2();
+
+
+**		let a = {
+			}
+
+			console.log(a + 1); // any primitive operation will automatically call valueOf()
+													// so object.valueOf() will return "[object Object]"
+
+.	Prototype of an Object
+			Prototypes are the mechanism by which JavaScript objects inherit properties and methods from one another.
+
+
+.	Prototype chain
+			Every object in JavaScript has a built-in property, which is called its prototype. The prototype is itself 
+			an object, so the prototype will have its own prototype, making what's called a prototype chain. 
+			The chain ends when we reach a prototype that has null for its own prototype.
+
+
+.	innerText vs textContent vs innerHtml
+		textContents is all text contained by an element and all its children that are for formatting purposes only.
+		innerText returns all text contained by an element and all its child elements.
+		innerHtml returns all text, including html tags, that is contained by an element.
+
+		Ex:-
+			<div id="mylinks">
+			  This is my <b>link collection</b> : 
+			  <ul>
+			    <li><a href="www.borland.com">Bye bye <b>Borland</b> </a></li>
+			    <li><a href="www.microfocus.com">Welcome to <b>Micro Focus</b></a></li>
+			  </ul>
+			</div>
+
+			.	This is my link collection :						(textContent)
+
+			.	This is my link collection : Bye bye Borland Welcome to Micro Focus 		(innerText)
+
+			.	This is my <b>link collection</b>: 															(innerHtml)
+				<ul> 
+				  <li><a href="www.borland.com">Bye bye <b>Borland</b></a></li>
+				  <li><a href="www.microfocus.com">Welcome to <b>Micro Focus</b></a></li> 
+				</ul>
+	
+.	closure => 
+			.	function along with its lexical scope form a closure.
+			.	it consume more memory bcz some unused variable cannot be accessed by garbageCollector.
+
+			Advantage:-
+					Encapsulation
+					Data Privacy:-
+						Closures allow us to create private variables & functions that are hidden from the global scope. 
+
+			Applications :-
+					Currying
+					HOF -> Memoize
+					setTimeouts
+					Module design pattern
+
+
+.	garbageCollector :- Free up the memory if variable is unreachable or not going to use in future.
+			Ex:- 	function a(){
+							var x = 0;
+							var z = 10;
+							return function b(){ // when we reach this line now there is no future use of z so it will be GC.
+								console.log(x);
+							}
+						}
+
+						var y = a();
+
+
+.	Mark and sweep algorithm:-
+		This algorithm assumes the knowledge of a set of objects called roots. The root is the global object. 
+		The garbage collector will start from these roots, find all objects that are referenced from these roots. 
+		The garbage collector will start from root and find all reachable objects and collect all non-reachable objects.
+
+
+.	scope chain => 	if a function not able to find any vaiables value then it goes to it parent laxical scope to check
+								 	if it not present there also then it goes to parent of parent. This is know as scope chain.
+
+.	Event loop :- 	
+					JS is an synchronous language in which task execute line by line but if there is any
+					async task then it goes to callback queue and after execution of all lines then 
+					event loop comes in the picture. Event loop is just like a gatekeeper.
+					It goes to callback queue to search is there any task present or not then 
+					these tasks will be transfered to call stack and start execute one by one in 
+					which order they were written.
+					Event loop is a core mechanism that enables asynchronous, non-blocking behavior in JS.
+
+.	task queue is used for synchronous statements
+
+.	Micro-task and Macro-task queue(Callback queue) :-
+					An Event Loop in JavaScript is said to be a constantly running process that keeps an eye
+					on the call stack. Its main function is to check whether the call stack is empty or not. 
+					If the call stack turns out to be empty, the event loop proceeds to execute all the callbacks
+					waiting in the task queue. The tasks are broadly classified into two categories:- 
+					namely 'micro-tasks' and 'macro-tasks'.
+
+					Micro-task :- A micro-task is said to be a function that is executed after the JavaScript 
+												execution stack is empty. Micro-tasks include mutation observer callbacks
+												and promise callbacks.
+
+					Macro-task :- A macro-task is said to be a function that is executed after the micro-task
+												queue is empty. The macro-task queue works the same as the task queue. 
+												The small difference between the two is that the task queue is used for synchronous 
+												statements whereas the macro-task queue is used for asynchronous statements.
+
+
+					Ex:-	const p = new Promise((resolve, reject)=>{
+								  setTimeout(()=>{
+								    resolve("Success");
+								  },3000)
+								})
+
+								setTimeout(()=>{
+								  console.log("hello");	// print last
+								},3000);
+
+								p.then((res)=>{
+								  console.log(res);	// print first
+								})
+
+
+.	Lexical environment:-
+			When javascript engine creates a new execution context for a function, it creates a new lexical 
+			environment to store variables defined in that function during the execution phase.
+			A lexical Environment is a data structure that holds an identifier-variable mapping.
+
+			The lexical environment contains two components:
+					.	Environment record:-
+							It is the actual place where the variable and function declarations are stored.
+
+					.	Reference to the outer environment:-
+							It means it has access to its parent lexical environment.
+
+
+.	Block / Compound statement:-
+		Its a collection of statement in js enclosed within braces {}.
+
+.	Why are block statement required ?
+		let and const declarations are scoped to the containing block. This allows us to hide data 
+		from the global scope without wrapping it in a function. It helps in abstraction.
+
+
+.	Expression vs (Statement/Declaraction) =>
+		An expression is a bit of JavaScript code that returns a value.
+		ex:-	1 → produces 1
+					"hello" → produces "hello"
+					5 * 10 → produces 50
+					num > 100 → produces either true or false
+					isHappy ? "🙂" : "🙁" → produces an emoji
+					[1, 2, 3].pop() → produces the number 3
+
+
+		A JavaScript program is a sequence of statements. Each statement is an instruction for the computer to do something.
+		ex:- 	.	if (hi > 10) {
+						  // More statements here
+						}
+					.	throw new Error('Something exploded!');
+					.	let hi = 5;
+
+					Here's how I like to think about this: statements are the rigid structure 
+					that holds our program together, while expressions fill in the details.
+					Statements often have "slots" for expressions. We can put any expression we like into those slots.
+					For example, declaring a variable has an expression slot:
+						let hi = /* some expression */;
+
+.	functions => 
+			1.	normal function :- (full function hoisted)
+
+			2.	function expression :- (only var type variable is hoisted but before initialization we cant access them)
+
+			3.	anonymous function :- only for execute one time and are be used as values.
+
+			4. 	named function expression => only be accessed 
+
+
+.	First class Function / First class Citizens => 
+						.	ability of a function can be passed as args, used as values and can be return is known as FCF.
+
+
+.	callback functions => 
+					.	A callback function is a function passed into another function as an argument.
+					.	that callbacks are often used to continue code execution after an asynchronous 
+						operation has completed — these are called asynchronous callbacks.
+					Ex:- setTimeout
+
+
+.	higher-order-function => 
+						.	those functions which take function as an argument or return a function or sometimes both.	
+							eg :- map()
+
+							
+. pure function => 	
+					A function that does not have any side-effects and always returns the same result for same input.
+					Ex:- .map()
+
+						const arr = [1,2,3];
+
+						function addEleToArr(a, element){
+							return [...a, element];
+						}
+
+						addEleToArr(a, 5);
+
+
+
+.	Unpure Function => 	Math.random
+
+
+Q.	What is the arguments object
+A.	arguments is an array-like object accessible inside functions 
+		that contains the values of the arguments passed to that function.
+
+.	args vs params
+		function add(a, b) { // 'a' and 'b' are parameters
+		  return a + b;
+		}
+		const result = add(3, 5); // '3' and '5' are arguments passed to the function
+
+Q.	How to create an object without a prototype
+A.	Object.create(null)
+
+.	Class => 	It is a template for JavaScript objects.	A JavaScript class is not an object.
+						always add a method named constructor()
+
+
+.	Object.seal() vs Object.freeze()
+	seal() allows changes to the existing properties of an object. It prevents from deletion of 
+	existing properties but cannot prevent them from external changes. Object. freeze() does not allow so.
+
+
+.	Freeze a value of an object
+			const user = {
+			  name: "tarun",
+			  dob: "29-01-2000"
+			}
+
+			const propertyDescriptor = {
+			  value: user.dob,
+			  writable: false
+			}
+
+			Object.defineProperty(user, "dob", propertyDescriptor);
+
+			user.dob = "kjdsjflkas";
+
+			console.log(user);
+
+
+.	Diff between in and hasOwnProperty
+			The in operator will check if the property is present directly in an object or in its prototype chain. 
+			The hasOwnProperty() method only checks if the property is directly present in the object.
+
+			Ex:- 	let arr = [1];
+						console.log(arr.hasOwnProperty("0")); // true
+						console.log(arr.hasOwnProperty("map")); // false
+						console.log("map" in arr); // true'
+
+*	shift 
+		shift remove the first element of an array.
+
+*		unshift add elements in the beginning of array. (any no of elements)
+		array1.unshift(4, 5)
+
+.		Type coercion:-
+				As mentioned above, JavaScript is a weakly typed language. This means that you can often use a value 
+				of one type where another type is expected, then JS will convert it to the right type for you.
+
+.	Type conversion vs Type coercion
+
+.	What are the ways to deal with Asynchronous Code in JavasScript?
+		promise then/catch method chaining 
+		async/await 
+
+.	Symbol:-
+		Symbol is a built-in object whose constructor returns a symbol primitive. It is unique. 
+		Symbols are often used to add unique keys to an object that won't collide with other keys.
+
+			const a = Symbol("hello");
+			const b = Symbol("hello");
+
+			console.log(a==b);			// false
+			console.log(a===b);			// false
+
+
+.	Class vs Object
+		Class is just like a bueprint of an object that helps us to create objects and like bind data and their behaviour.
+		Object is a real world entity that has data and the function to work with those data.
+
+
+.	Async / Await
+		.	Async simply allows us to write promises-based code. It returns a new Promise.
+		. Await make a promise-returning functions behave as like they are synchronous by suspending 
+			execution until the promise is settled.
+		.	await just suspend the current function execution and allowing other code to run that is outside of async function.
+
+		Ex:-	const p1 = new Promise((resolve, reject)=>{
+					  setTimeout(()=>{
+					    resolve("api 1");
+					  },5000)
+					});
+
+					const p2 = new Promise((resolve, reject)=>{
+					  setTimeout(()=>{
+					    resolve("api 2");
+					  },2000)
+					});
+
+					*		async function handle1(){
+							  const val1 = await p1;
+							  console.log("val1 ",val1);
+							  
+							  const val2 = await p2;
+							  console.log("val2 ",val2);
+							}
+
+							handle1(); // both promise reolve after 5sec
+
+
+					*		async function handle2(){
+							  const val2 = await p2;
+							  console.log("val2 ",val2);
+							  
+							  const val1 = await p1;
+							  console.log("val1 ",val1);
+							}
+							handle2(); // val2 print after 2s and val1 after 3s of p1
+
+							console.log("Hello");
+
+
+
+.*	arrow => in arrow function this is of parent.
+		eg:- const obj = {
+			name: 'arfat',
+			printName: () =>{
+				console.log(this.name);		// undefined  (bcz this is equal to window.)
+			}
+		}	
+
+		obj.printName();
+
+
+.*	const obj = {
+			name: 'arfat',
+			printName() {
+				console.log(this.name);		// arfat
+			}
+		}	
+  
+  	obj.printName();	
+
+
+.*	const obj = {
+		  fname: "arfat",
+		  do(){
+		    const a = this;		// obj
+		    let printName = function(){
+		      console.log(this);			// window object
+		      console.log(this.fname);		// undefined
+		    }
+		    printName();		// bcz printName is called without any context.
+		  }
+		}
+
+		obj.do();
+
+
+.	const obj = {
+	  fname: "arfat",
+	  do(){
+	    const a = this;
+	    let printName = ()=>{
+	      console.log(this);			// object
+	      console.log(this.fname);		// arfat
+	    }
+	    printName();
+	  }
+	}
+
+	obj.do();
+
+
+.*	setTimeout(function (){
+	  console.log(this);		// can't say (bcz we can't see execution context)
+	}, 1000);
+
+
+.	deligation => if not find any property with that name then seacrh it in the parents
+
+.**	convert into binary => 
+							a.toString(2);
+
+
+.**	 To format a number to display only "four" decimal places
+			num.toFixed(4);
+
+.	reduce() =>		
+				.	arr.reduce(function(acc, curr){
+						logic;-----
+					}, defaultValueOfacc);
+
+
+			eg:-	const users = [
+					  {firstname: 'akshay', lastname: 'saini', age: 26},
+					  {firstname: 'donald', lastname: 'trump', age: 75},
+					  {firstname: 'elon', lastname: 'musk', age: 50},
+					  {firstname: 'deepika', lastname: 'padukone', age: 26},
+					];
+
+					const output = users.reduce((acc,curr)=>{
+					  if(curr.age < 30){
+					    acc.push(curr.firstname);
+					  }
+					  return acc;
+					},[]);
+
+					console.log(output);
+
+
+
+.	map() - filter() - reduce()  
+
+.	1.	array.filter((el) => el%2 == 1).map((el) => el*2);
+
+	2.	function isOdd(el){
+		    return el % 2 == 1;
+		}
+
+		function double(num){
+		    return num * 2;
+		}
+
+		function doubleOdd(array){
+		    return array.filter(isOdd).map(double);
+		}
+
+.	class & constructor =>	// here setter and getter are different from java.
+
+						eg:-class Car {
+							  constructor(brand) {
+							    this.carname = brand;
+							  }
+							  get cnam() {
+							    return this.carname;
+							  }
+							  set cnam(x) {
+							    this.carname = x;
+							  }
+							}
+
+							let myCar = new Car("Ford");
+							myCar.cnam = "Audi";
+							console.log(myCar.cnam)
+
+
+
+. 	Inheritance  =>	
+					class Car{
+					  constructor(){
+					    this.name = "tarun"
+					  }
+					  test(){
+					    return this.name;
+					  }
+					}
+
+					class Car1 extends Car{
+					  constructor(){
+					    super();
+					  }
+					  show(){
+					    return this.test()
+					  }
+					}
+
+					let c = new Car1();
+					console.log(c.show())
+
+.	Person.prototype  => it is an object
+
+.	Person.prototype.constructor  => it keeps a refrence of Person class.
+
+.	Prototype =>
+				.	Object.getPrototypeOf(obj);
+				.	Object.setPrototypeOf(obj, obj2);
+
+.	getPrototypeOf vs __proto__
+		getPrototypeOf is recommended
+
+.	Array.prototype.includesOneOf = function(array){
+	    const arr = this;
+	    for(const a of array){
+	        if(arr.includes(a)){
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	const arr=[1, 2, 3, 4, 5, 6];
+	console.log(arr.includesOneOf([2, 8, 10]));
+
+.	Object.entries(obj);
+
+.	Object.values(obj);
+
+. Object.keys(obj);
+
+* 	Array =>
+			const arr = ['arfat','salman'];
+
+			arr.myname = 'Tj';
+
+			console.log(arr.myname);	// Tj
+
+			arr.length;		// 2
+
+.	var arr = new Array(2);		// CREATE an array of length 2
+
+.	if(arr instanceof Array)	// bad practice
+
+.	if(Array.isArray(arr))		// tells if arr is an array or not.
+
+.	arr.includes(NaN);		// if present then return true
+
+.	arr.indexOf(NaN);		//	-1	(bad practice)
+
+.	if we use + operator with numerical string then it concatenate that numberic string.
+	eg:- true + '2' = true2
+		 '2' + '3' = 23
+
+.	if we use other operator with numeric string then they work as arithmatic operator.
+	eg:- '2' * '3' = 6
+
+.	'Bruce' - 'Wayne' = NaN
+	'5' - null = 5
+	'5' - undefined = NaN
+	'5' + true = 5true
+	'5' - true = 4
+	'5' - false = 5
+
+.	Number('') = 0
+
+.	toString() not work with null & undefined
+
+.	var arr = [3, 5, 7];
+	arr.foo = "hello";
+
+	for(let x in arr ){
+	  console.log(x)	=> "0" "1" "2" "foo"
+	}
+
+.	var arr = [3, 5, 7];
+	arr.foo = "hello";
+
+	for(let x of arr ){
+	  console.log(x)	=> 3 5 7
+	}
+
+.	var arr = [3, 5, 7];
+	arr.foo = "hello";
+
+	console.log(arr);  => [3, 5, 7]
+	
+.	findIndex(callback function())=>
+									const array1 = [5, 12, 8, 130, 44];
+
+									const isLargeNumber = (element) => element == 8;
+
+									console.log(array1.findIndex(isLargeNumber));
+
+. arr.sort();		// only for String
+
+.	arr.sort((a,b)=>a-b);	//	comparator
+
+.	arr.concat();		// merge two arrays [1,2,3], [4,5] -> [1,2,3,4,5]
+
+.	arr.join('-');
+	arr.join(',');
+
+.	arr.slice(0,3);		//	like substring
+
+.	const arr = [1,2,3,4,5,6,7,8];
+
+	const even = arr.filter(function(){
+			return el%2 == 0;
+		})
+
+.	Array.from(freqMap.values())	// create an array 
+
+.	str.indexOf()
+
+.	arr.indexOf()
+
+.	delete data from an array
+
+	let a = [1,2,3];
+	delete a[1];
+	console.log(a);	//	[1, undefined, 3] create an empty slot/hole'
+
+
+**	forEach => it always skips holes
+				const arr = [];
+				arr[0] = "Arfat";
+				arr[2] = "Salman";
+				arr.length;		// 2
+
+				arr.forEach((el){
+					console.log(el);	//	Arfat Salman
+				})
+
+.	let x = 10;
+	window.x;	// undefined
+
+.	DOM => 	Dom represent the logical structure of the web page. DOM represents the document as nodes and objects.
+					The Document Object Model is a Tree of "JavaScript object" of html nodes.
+					The HTML will convert into DOM object.
+
+
+.	BOM =>	The Browser Object Model (BOM) in JavaScript includes the properties and
+			methods for JavaScript to interact with the web browser.
+
+			BOM provides you with a window objects, for example, to show the width and
+			height of the window. 
+
+			All global JS objects, functions, and variables automatically become members of the window object.
+
+			It also includes the window.screen object to show the width and height of the screen.
+
+			eg:- setTimeout()  &  setInterval()
+
+.	What's the difference between event.preventDefault() and event.stopPropagation() methods
+			preventDefault() prevents the default browser behavior for a given element.
+			stopPropagation() stops an event from bubbling or propagating up the DOM tree.
+
+.	How to know if the event.preventDefault method was used in an element?
+			Use event.isDefaultPrevented() to check whether the preventDefault() method was called for the event.
+
+.	Difference between event.currentTarget and event.target
+			currentTarget tells us on which element the event was attached. 
+			event.target tells where the event started.
+
+*	What does the !! operator do?	(like toggling)
+			It does true or falsy conversion of the value.
+
+
+.	location =>
+				. 	pathname()
+				.	host()
+				. 	hostName()
+				.	search()
+				.	assign(url)
+				.	replace(url)
+				.	reload()
+
+.	setCustomValidity() =>
+							In an input element, it is used to set the validationMessage property. It is really very 
+							easy to control a custom validation message in an HTML5 form. Let us find out how.
+
+							eg :-	if (textbox.value === '') {
+						                textbox.setCustomValidity
+						                      ('Entering an email-id is necessary!');
+						            } else if (textbox.validity.typeMismatch) {
+						                textbox.setCustomValidity
+						                      ('Please enter an email address which is valid!');
+						            }
+
+
+.	validationMessage()	Contains the message a browser will display when the validity is false.
+
+.		.match() when you want to extract the matched parts of a string using a regular expression.
+
+.		.test() when you simply want to check if a pattern exists within a string.		// try to use this only
+
+.	window.open("https://www.w3schools.com");  => open new window
+
+.	event.keyCode();
+
+.	deltaX	=> use for mouse wheel rotation report.
+
+.	event.stopPropagation();
+
+.	event.preventDefault() => stop browser action and do mine.
+
+.	optionDiv.textContent = option;
+
+.	prompt.appendChild(document.createTextNode(questionPrompt));
+
+.	methods =>	define in an object				(this keyword refers to the owner object)
+
+.	function => define with function keyword	
+							(this refers to the global/owner object)
+
+
+.	in strict mode this is undefined
+
+.	if the value of this is null or undefined this keyword will be replaced with globalObject value. (But only in non-strict mode)
+		function x(){
+			console.log(this);	// window in non-strict mode
+		}
+
+		x();	// it is like window.x() in non-strict mode;
+
+
+.	bind() retrun a new function() and that object will permanent bind to this keyword.
+	eg:- .	function x(){
+			  console.log(this);
+			}
+
+			x();						// window
+			const y = x.bind({});
+			y();						// object
+
+
+
+		.let person = {
+		    name: 'John Doe',
+		    getName: function() {
+		        console.log(this.name);
+		    }
+		};
+
+		let f = person.getName.bind(person);
+		setTimeout(f, 1000);
+
+.	call({},10,20) not return a new function() and that object will bound to this keyword only  for that specific call.
+
+.	const person = {
+	  fullName: function(city, country) {
+	    return this.firstName + " " + this.lastName + "," + city + "," + country;
+	  }
+	}
+
+	const person1 = {
+	  firstName:"John",
+	  lastName: "Doe"
+	}
+
+	person.fullName.call(person1, "Oslo", "Norway");
+
+.	apply({},[10,20]) & apply(null,[1,3]) =>
+										.	is just same as call() but it takes an array as an argument.
+
+										.	also can use when there is no use of this keyword by passing null as object.
+											ex :- Math.max.apply(null, [1,5,2,6,0]);
+
+
+.	const arr = [1,2,3];
+	const ele = [4,5];
+	arr.push.apply(arr, ele);
+
+
+.	In an event, this refers to the element that received the event.
+
+.	let counter = {
+	  count : 0,
+	  inc : function(){
+	    console.log(this);
+	  }call
+	};
+	counter.inc()					// Object { count: 0, inc: inc() }
+	counter.inc.call(counter)		// Object { count: 0, inc: inc() }
+	counter.inc()					// Object { count: 0, inc: inc() }
+	const fn = counter.inc;
+	fn()							// Window about:home
+
+
+.	let obj = {
+	  firstName : 'Jane',
+	  friends: ['Tarzan','Cheeta'],
+	  loop: function(){
+	    console.log(this);					//	obj
+	    this.friends.forEach(function(){
+	      console.log(this);  				// window
+	    });
+	  }
+	};
+
+	obj.loop();
+
+
+
+.	event.target.tagName/ .style/ .getAttribute						// QQQQQQQQQQQQQQQQQQ
+
+.	array.filter(fn);	//	function fn(){	statements;  return result;}
+
+.	currying:-
+				function sum(a,b,c){
+				  return a+b+c;
+				}
+
+				function curry(fn){
+				  return function(a){
+				    return function(b){
+				      return function(c){
+				        return fn(a,b,c);
+				      }
+				    }
+				  }
+				}
+
+				const currySum = curry(sum);
+				console.log(currySum(2)(3)(5));
+
+
+*	functionName.length returns the length of arguments array.
+
+
+*		const curry = (fn) => {
+		  const helper = (...args) => {
+
+		    if(args.length >= fn.length){ 	// will call fn when all the args has been passed
+		      return fn(...args);
+		    } else{
+		      const temp = (...args2) => {
+		        return helper(...args, ...args2);
+		      }
+		      return temp;
+		    }
+		  }
+
+		  return helper;
+		}
+
+		function sum(a,b,c,d,e){
+		  return a+b+c+d+e;
+		}
+
+		const curriedSum = curry(sum);
+
+		// first helper will return then [1] will be passed to it then it goes to else
+		// then temp will return then it will be called by passing [2,3] to it 
+		// then helper will return and it will be called by adding [1],[2,3] then it goes to else
+		// then temp will return then it will be called by passing [4,5] to it
+		//	then helper wiil return and it will be called by adding [1,2,3],[4,5] 
+		console.log(curriedSum(1)(2,3)(4,5));
+		console.log(curriedSum(1,2,3,4,5));
+		console.log(curriedSum(1)(2)(3)(4)(5));
+
+
+
+*		function add(...args){
+		  let storage = args;
+		  
+		  function helper(...args2){
+		    storage.push(...args2);
+		  	console.log("helper start");
+		    return helper;
+		  }
+		  
+			helper.valueOf = function(){
+		    console.log(storage)
+		    return storage.reduce((a,b)=>{
+		      return a+b;
+		    }, 0);
+		  }
+		  
+		  helper.value = helper.valueOf;
+		  this.value = helper.valueOf;
+		  console.log("helper end");
+		  return helper;
+		}
+
+		console.log(add(1)(2)(3).value()==6);
+		console.log(add(1,2,3).value()==6);
+		console.log(add(1,2)(3).value()==6);
+		console.log(add(1)(2)+3);
+
+
+.=>
+	.	// const result = [];
+	    // for(let i=0;i<array.length;i++){
+	    //     if(array[i]){
+	    //         result.push(array[i]);
+	    //     }
+	    // }
+	    // return result;
+
+	.   // return array.filter( (el)=>{
+	    //     if(el){
+	    //         return true;
+	    //     }
+	    //     else{
+	    //         return false;
+	    //     }
+	    // });
+
+    .	// return array.filter( (el)=> Boolean(el));
+
+    .	//	return array.filter( (el)=>{
+        		return Boolean(el);
+    		})
+
+    .	// return array.filter(Boolean);
+
+
+.		valueOf()
+			The valueOf() method returns the primitive value of a string.
+			The valueOf() method does not change the original string.
+			The valueOf() method can be used to convert a string object into a string.
+
+			ex=>	let text = new String("Hello World!");
+						let result = text.valueOf();
+
+						console.log(text)							//	{"Hello World"}
+						console.log(result)						//	Hello World
+
+
+Q.	.map() vs .filter() =
+
+.	splice() => splice(startIndex, deleteCount, item1, item2) // if deleteCount is 0 then it will just add the new items.
+				it modify the original array
+
+. slice() => (just like substring())
+				it does not change the original array. It is use to get some part of the array
+
+
+.	valueOf():-
+				The valueOf() method returns the primitive value of a string.
+
+
+.	String.fromCharCode(65)	// a
+
+
+.	map vs forEach	=>
+		.	map returns an array and forEach returns undefined.
+		.	method chaining can be done with map.
+
+
+.	require('lodash/memoize');
+
+
+.	Random sorting & shuffling => 	var as = ["max","jack","sam"];  
+									var s = as.sort(func);  
+
+									function func(a, b) {  
+									  return 0.5 - Math.random();
+									}  
+
+									console.log(s);
+
+.	image shuffling =>	image.sort(() => Math.random() - 0.5);
+
+.	e.target.attributes /// returns all the attributes
+
+.	e.target.attributes["data-ns-test"].nodeValue
+
+.	lodash.memoize(fn_name);	
+		
+							function square(num){		// call only one time
+								console.log("Hello"); 	
+								return num * num;
+							}
+
+							const memoizedFn = memoize(square);
+
+							console.log(memoizedFn(20));	// Hello 400
+							console.log(memoizedFn(20));	// 		 400
+							console.log(memoizedFn(20));	//		 400
+
+
+
+*		Memoize by learnersbucket
+
+		let memoize = (fn) =>{
+		  let cache = {};
+		  return function(...args){
+		    const key = JSON.stringify(args);
+		    
+		    if(cache[key]){
+		      return cache[key];
+		    }
+		    
+		    const evaluateValue = fn(...args);
+		    cache[key] = evaluateValue;
+		    return evaluateValue;
+		  }
+		}
+
+
+		function fact(n){
+		  if(n<=1){
+		    return 1;
+		  }
+		  
+		  return fact(n-1) * n;
+		}
+
+		const memoizedFact = memoize(fact);
+		console.log(memoizedFact(105));
+		console.log(memoizedFact(105));
+
+
+
+*		function memoize(fn){		// fn is the sqaure function
+			const cacheStore = {};		// is a map (key-value pair)
+			return function(arg){
+				if(cacheStore[arg] !== undefined){
+					return cacheStore[arg];
+				}
+
+				const value = fn(arg);		// compute if value not in cache
+				cacheStore[arg] = value;
+				return value;
+			};
+		}
+
+		function square(num){		// call only one time
+		    console.log("Hello"); 	
+		    return num * num;
+		}
+
+		const memoizedFn = memoize(square);
+
+		console.log(memoizedFn(20));	// Hello 400
+		console.log(memoizedFn(20));	// 		 400
+		console.log(memoizedFn(20));	//		 400
+
+
+
+
+.	var storedItem = localStorage.getItem('autosave-data')
+
+.	localStorage.setItem("autosave-data",data);

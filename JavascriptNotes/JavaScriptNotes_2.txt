@@ -1,0 +1,490 @@
+
+
+
+	*****************************	AJAX   *********************
+	
+
+.	Promise => 
+			.	The Promise object represents the eventual completion (or failure) of an asynchronous operation
+			.	It is an object which indicates the success and failure of an async task.
+			. to remove callback hell
+			.	is an object, it has .then()  method.
+			.	It waits for an async task to be done and then deliver the result in callback.
+			. fetch() function is use as Promise.
+			.	it allows to access the future values.
+
+*	fetch() resolve as a promise that returns a readable stream of data that we convert into json by data.json().
+*	data.json() is also resolve as a promise.
+		Ex:-
+			response.json().then((res) => {
+					console.log(res);
+			})
+
+
+*	with new Javascript features Promise.all and Promise.allSettled you can easily run Async Await in parallel.
+
+.	Promise.all
+.	Promise.allSettled()	=> {status: "", value: ""} / {status:"", reason:""}
+.	Promise.race()
+. Promise.any()	=> any of the promise success but if all fails then aggregate error (by this we can access this err.errors)
+
+	A Promise has 3 states:
+		.	pending: initial state, neither fulfilled nor rejected.
+		.	fulfilled: meaning that the operation was completed successfully.
+		.	rejected: meaning that the operation failed.
+
+
+			eg :- 	var flag = true;
+					function checkUserStatus(){
+						var promise = new Promise((success, failure)=>{
+							setTimeout( ()=> {
+								if(flag){
+									success("User Loged in");
+								}
+								else{
+									reject();
+								}
+							}, 1000);
+						});
+						return promise;
+					}
+
+					setTimeout( ()=>{
+						flag = true;
+					}, 500);
+
+					checkUserStatus()
+					.then((msg) => {
+						console.log(msg);
+					})
+					.catch(()=> console.log("user not logged in"));
+
+
+*	Callback is also known as Pyramid of Doom.
+
+
+.	Promise Chain / How to handle callback hell (Use for Iversion of control means the next call can handle by us not by the function)
+
+	Ex-	let cart = ["one","two","three"];
+
+				function validate(cart){
+				  return true;
+				}
+
+				function createOrder(cart){
+				  return new Promise((resolve, reject)=>{
+				    if(!validate(cart)){
+				      reject("Cart is not valid");
+				    }
+				    let orderId = "1234";
+				    if(orderId){
+				      setTimeout(()=>{
+				        resolve(orderId);
+				      },1000)
+				    }
+				  });
+				}
+
+				function proceedToPayment(orderId){
+				  return new Promise((resolve, reject)=>{
+				    if(orderId){
+				      setTimeout(()=>{
+				        resolve("success");
+				      },1000);
+				    }
+				  })
+				}
+
+				function showOrderSummery(paymentStatus){
+				  return new Promise((resolve, reject)=>{
+				    if(paymentStatus==="success"){
+				      resolve({orders: cart});
+				    }
+				  })
+				}
+
+				createOrder(cart)
+				.then(orderId => {
+				  console.log("orderId ",orderId);
+				  return proceedToPayment(orderId);
+				})
+				.then(paymentStatus => {
+				  console.log("paymentStatus ",paymentStatus)
+					return showOrderSummery(paymentStatus);
+				})
+				.then(orderDetails => {
+				  console.log("orderDetails ",orderDetails)
+				})
+				.catch(err=>{
+				  console.log("error ",err);
+				})
+
+
+
+.	fetch(url).then( function(response){
+		return response.json();
+	}).then( function(data){
+		console.log(data.toString());
+	});
+
+
+.	function test(){
+		return new Promise( (res)=>{
+			setTimeout( ()=>{
+				res(Math.random())
+			}, 1000);
+		});
+	}
+
+	test().then( function(data){
+    	console.log(data);
+	})
+
+
+. 	if multiple Promises =>
+							Promise.all([p1(),p2(),p3(),.....]).then( ()=>{
+								----------
+							})
+
+
+.	destructuring can be used with 8 types (array, string, map, object)
+
+	eg:=
+		const obj = {name: 'arfat', lastname: 'salman', dob: 'jan'};
+
+		const {lastname, name} = obj;		// key should be same for access data of an object.
+
+		console.log(name);			// arfat
+		console.log(lastname);		// salman
+
+
+	eg:-
+		const obj = {name: 'arfat', lastname: 'salman', dob: 'jan'};
+		const {lastname, ...restabc} = obj;
+		console.log(lastname);				// salman
+		console.log(restabc);				//	{name:'arfat', dob:'jan'}
+
+
+.	rest operator should be at last
+
+.	for obj should use { } and key should be same as in the object.
+
+
+
+Q=> const {...abc, ...xyz} = [obj1, obj2];	 // give error bcz rest should be only at last.
+
+.	const obj1 = {lastname: 'jangra'};
+	const obj2 = {firstname: 'tarun'};
+	const {...res1} = [obj1,obj2];		
+	console.log(res1);				// {'0': { lastname: 'jangra' }, '1': { firstname: 'tarun' } }
+
+.	spread operator can be anywhere on the right side 
+
+.	transitionend event:-
+			The transitionend event is fired when a CSS transition has completed.
+			I have used this in animate progress bar question asked in Navi.
+
+.	rest and spread same time
+	eg:-
+		const obj3 = {name:'arfat',lastname:'jangra',dob:'jan'};
+		const {name, ...rest} = {...obj3, age:21};
+
+		console.log(name);						//	arfat
+		console.log(rest);						//	{ lastname: 'jangra', dob: 'jan', age: 21 }
+
+
+.	concat(value0, value1, /* … ,*/ valueN)
+
+
+.	check if object contains a property or not.
+				const obj = {
+					id: 1,
+					name: "",
+					salary: 459395,
+				}
+
+				const isSalaryExist = 'salary' in obj;
+
+
+.	conditionally add property to an object
+				const includeSalary = true;
+
+				const obj = {
+					id: 1,
+					name: "",
+					...(includeSalary && {salary: 4904395})
+				};
+
+				
+.	Sallow copy array and objects
+				const arr = [10, 30, 20, 40];
+				const newArr = [...score];
+
+				const obj = {id:1, name:""};
+				const newObj = { ...obj };
+
+
+.	Delete property of an object 
+				const obj = {
+					id: 1,
+					name: "",
+					salary: 459395,
+				};
+
+				delete obj.salary;
+
+
+. Delete property without delete keyword
+				const obj = {
+					id: 1,
+					name: "",
+					salary: 459395,
+				};
+
+				const {salary, ...newEmployee} = employee;
+
+
+.	Check type of array 
+				let arr = [];
+				Array.isArray(arr);
+
+
+.	Use a falsy bouncer
+			const arr = [4, 5, null, undefined, false, 7, NaN];
+			const newArr = arr.filter(Boolean);
+
+
+.	Check occurrence in Array of objects
+				const arr = [
+					{id:1, name:"abc"},
+					{id:2, name:"efg"},
+					{id:2, name:"jkl"},
+				];
+				const hasName = arr.some(item => item.name === "jkl");
+
+
+.	How to write large numbers
+			const num = 45000000000;	// wrong
+			const num1 = 45_000_000_000;	// Numeric Separators enables _ as a separator in numeric literals.
+			const num2 = 45e9;
+
+
+*	Object Destructuring on array
+			const colors = [
+				"#dfaffa",
+				"#9942ds",
+				"#lao355",
+				"#lsdf93"
+			];
+			const { 0:firstColor, 3:lastColor } = colors;
+			console.log(firstColor); 		// "#dfaffa"
+			console.log(lastColor); 		// "#lsdf93"
+
+.	Skip values in array destructuring
+			const arr = [10,20,30,40,50];
+			const [, , ...restArr] = arr;
+			console.log(restArr); // [30,40,50]
+
+.	JSON.stringify	with spacer
+
+			const obj = {
+			  id: 1,
+			  name: "tarun",
+			  salary: "44859"
+			}
+			const format = JSON.stringify(obj);
+			console.log(format);	//{"id":1,"name":"tarun","salary":"44859"}
+
+			const format1 = JSON.stringify(obj,null,2);	// 3rd parameter is a spacer it can be a no. or string.
+			console.log(format1);		//{
+																  "id": 1,
+																  "name": "tarun",
+																  "salary": "44859"
+																}
+
+.	JSON.stringify with replacer 
+
+		1.	with replacer function
+				function replacer(key, value) {
+				  // Filtering out properties
+				  if (typeof value === "string") {
+				    return undefined;
+				  }
+				  return value;
+				}
+
+				const obj = {
+				  foundation: "Mozilla",
+				  model: "box",
+				  week: 45,
+				  month: 7,
+				};
+				JSON.stringify(obj, replacer);	// '{"week":45,"month":7}'
+
+		2.	with replacer array
+				const obj = {
+					id: 1,
+					name: "tarun",
+					address: {
+						city: "Surat",
+						state: "Gujarat",
+						country: "India"
+					}
+				};
+
+				const filters = ["name", "address", "city", "country"]; // now only these property will be stringify
+				const newObj = JSON.stringify(obj, filters, " "); // state property will not be include.
+				//	{
+						 id: 1,
+						 name: "tarun",
+						 address: {
+						 city: "Surat",
+						 country: "India"
+						}
+					}
+
+
+.	Use of optional chaining on function call
+			fn && fn();	//wrong
+			fn?.(); // correct
+
+.	'in' vs 'hasOwnProperty' => 
+								The in operator will check if the property is present, either directly in an object or 
+								in its prototype chain; whereas, the hasOwnProperty() method only checks if 
+								the property is directly present in the object.
+								Ex:- 	'prop1' in obj
+											obj.hasOwnProperty('prop1')
+
+
+.	const obj = { ...true, ..."test", ...10 };
+	console.log(obj);	// { '0':'t', '1':'e', '2':'s', '3':'t' }
+
+
+.	Arrays.flat(--); // can pass the depth of the flatnning
+		const arr2 = [0, 1, [2, [3, [4, 5]]]];
+		arr3.flat(2);
+		// [0, 1, 2, 3, [4, 5]]
+
+.	console.time() & console.timeEnd() to debug performance
+			first use console.time() before start of the function
+			then use console.timeEnd() after function ends;
+
+
+.	group console.log statements by using console.group() and console.groupEnd()
+
+.	conditional console statements by using console.assert(condition, "");
+
+.	console an object in form of table by console.table();
+
+.	default assignment for required arguments
+			const isRequired = () =>{
+				throw new Error("Argument is required");
+			}
+
+			const abc = (arg = isRequired()) =>{
+				conso.log(arg);
+			}
+
+			abc("tarun");	// tarun
+			abc(""): //
+			abc(null): // null
+			abc(); //	Error: Argument is required
+
+
+*	Problems with default exports are:
+		• Discoverability is very poor for default exports.
+		• Difficult to analyze by automated tools or provide code autocompletion.
+		• Horrible experience for CommonJS.
+		• TypeScript auto-import struggles.
+		• Default exports make large-scale refactoring impossible.
+
+
+.	Lock an object by using Object.freeze(obj);
+
+.	Smooth scroll to a specific element
+			element.scrollIntoView({
+				behavior: "smooth"
+			})
+
+
+.	Object.entries(obj) returns an array of arrays. 2D array
+
+.	?? nullish coalescing
+		The Nullish Coalescing Operator (??) is a logical operator that accepts two values and 
+		returns the second value if the first one is null or undefined and otherwise returns the first value.
+
+
+.	Always avoid Automatic Semicolon Insertion.
+			function abc(){
+			  return
+			  {
+			    id: "324";
+			  };
+			}
+
+			console.log(abc()); // undefined 
+
+
+.	Property renaming in object destructuring
+			const obj = {
+				id: 1,
+				name: "tarun"
+			}
+			const { id: empId, name: firstName } = obj;
+			console.log(empId); // 1
+			console.log(firstName); // tarun
+
+			const { name: empName, name: firstName} = obj;
+			console.log(empName); // tarun
+			console.log(firstName); // tarun
+
+
+.	Object nested destructuring
+				const obj = {
+					id: 1,
+					name: "tarun",
+					address: {
+						city: "Surat",
+						state: "Gujarat",
+						country: "India"
+					}
+				};
+
+				const { address: { country, state }} = obj;
+				console.log(country); // India
+				console.log(state); // Gujarat
+
+
+.	2d array to an object by Object.fromEntries / Create an object from key-value pair using Object.fromEntries
+				const arr = [
+					["id", 1],
+					["name", "tarun"],
+					["age", 20]
+				];
+
+				const obj = Object.fromEntries(arr);
+				console.log(obj);	// { id: 1, name: "tarun", age: 20 }
+
+
+.	Array.every (Check every element of the array using Array.every)
+				const arr = [
+					{id:1, isActive: true},
+					{id:2, isActive: false},
+					{id:2, isActive: true},
+				];
+
+				const isAllActive = arr.every(item => item.isActive === true);
+
+
+.	Swap 2 variables
+		let a = 10;
+		let b = 20;
+		[b, a] = [a, b]
+
+.	Mask numbers using slice and padStart
+			const a = "93459399458939859";
+			const last4Digits = a.slice(-4); //	9859
+			const maskNo = last4Digits.padStart(a.length, "*");
+			console.log(maskNo); //	****************9859
+
+.	String to a number using the plus (+) operator
