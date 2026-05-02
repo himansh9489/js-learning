@@ -18,6 +18,7 @@ Your job as a developer is to make sure crawlers can complete all three steps co
 
 ## Why SEO Matters
 
+
 | Reason                  | Detail                                                                        |
 | ----------------------- | ----------------------------------------------------------------------------- |
 | **Organic traffic**     | 68% of all online experiences begin with a search engine                      |
@@ -26,11 +27,13 @@ Your job as a developer is to make sure crawlers can complete all three steps co
 | **Compounding returns** | Good content + good SEO = traffic that grows over time                        |
 | **Business survival**   | For e-commerce, blogs, SaaS — search is often the primary acquisition channel |
 
+
 ---
 
 ## What Search Engines Actually Measure
 
 Google's ranking algorithm weighs hundreds of signals. The main ones relevant to frontend developers:
+
 
 | Signal Category         | What It Includes                                                  |
 | ----------------------- | ----------------------------------------------------------------- |
@@ -40,6 +43,7 @@ Google's ranking algorithm weighs hundreds of signals. The main ones relevant to
 | **Technical structure** | Semantic HTML, structured data (Schema.org), meta tags            |
 | **Backlinks**           | External sites linking to you (developer has little control here) |
 | **E-E-A-T**             | Experience, Expertise, Authoritativeness, Trustworthiness         |
+
 
 ---
 
@@ -74,6 +78,7 @@ Googlebot does execute JavaScript (with a delay), but:
 
 ## Rendering Strategies and Their SEO Impact
 
+
 | Strategy                | SEO Impact | How                                                                            |
 | ----------------------- | ---------- | ------------------------------------------------------------------------------ |
 | **CSR (Vite SPA)**      | Poor       | Crawlers see empty shell; JS-rendered content indexed with delay or not at all |
@@ -81,6 +86,7 @@ Googlebot does execute JavaScript (with a delay), but:
 | **SSG (Next.js/Astro)** | Excellent  | Pre-built HTML; instant for crawlers, no server needed                         |
 | **ISR**                 | Excellent  | Like SSG but revalidated periodically                                          |
 | **Pre-rendering**       | Good       | Build-time HTML snapshot; works for mostly-static pages                        |
+
 
 > For this `gold-invest` project (WebView MFE inside BharatPe app) — SEO is **not applicable** because the app runs inside a native WebView, not a public browser tab. The concepts below apply to public-facing React apps.
 
@@ -520,11 +526,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 Since 2021, Google uses Core Web Vitals as a **direct ranking factor** (Page Experience signal).
 
+
 | Metric          | Threshold | What to do                                                                    |
 | --------------- | --------- | ----------------------------------------------------------------------------- |
 | **LCP** ≤ 2.5s  | Good      | Preload hero image, use CDN, reduce TTFB, lazy-load offscreen images          |
 | **CLS** ≤ 0.1   | Good      | Always set width/height on images/videos, no late-injected content above fold |
 | **INP** ≤ 200ms | Good      | Avoid long JS tasks, debounce inputs, virtualise lists                        |
+
 
 Measure in production with:
 
@@ -630,6 +638,7 @@ This crawls your built app, renders it with a headless browser, and saves the HT
 
 ## SEO Checklist
 
+
 | Category            | Item                                                       |
 | ------------------- | ---------------------------------------------------------- |
 | **Meta**            | Unique `<title>` (50–60 chars) per page                    |
@@ -652,6 +661,7 @@ This crawls your built app, renders it with a headless browser, and saves the HT
 | **Performance**     | INP ≤ 200ms                                                |
 | **Structured data** | JSON-LD schema where applicable (Product, FAQ, Breadcrumb) |
 
+
 ---
 
 ## Interview Q&A
@@ -671,8 +681,8 @@ Fixes in order of effectiveness:
 
 **Q2. What is the difference between `<title>`, `<meta description>`, and Open Graph tags? Which affect ranking?**
 
-- **`<title>`**: The blue link text shown in search results. A direct on-page ranking signal — include your primary keyword. Keep it 50–60 characters.
-- **`<meta name="description">`**: The snippet shown under the title in search results. **Not a direct ranking signal**, but heavily affects click-through rate (CTR), which indirectly influences ranking. Keep it 150–160 characters.
+- `**<title>`**: The blue link text shown in search results. A direct on-page ranking signal — include your primary keyword. Keep it 50–60 characters.
+- `**<meta name="description">**`: The snippet shown under the title in search results. **Not a direct ranking signal**, but heavily affects click-through rate (CTR), which indirectly influences ranking. Keep it 150–160 characters.
 - **Open Graph tags** (`og:title`, `og:description`, `og:image`): Not a Google ranking signal. Control how the page appears when shared on social media (Facebook, WhatsApp, Twitter). A compelling og:image dramatically increases social share engagement.
 
 ---
@@ -721,8 +731,8 @@ In practice, vitals rarely override content quality, but for competitive niches 
 
 Both control crawler access, but at different levels:
 
-- **`robots.txt` Disallow**: Blocks the crawler from fetching the URL at all. The page still may appear in search results if other sites link to it — Google knows it exists but can't read it.
-- **`<meta name="robots" content="noindex">`**: Allows the crawler to fetch the page but instructs it not to include the page in the index. The page will not appear in search results.
+- `**robots.txt` Disallow**: Blocks the crawler from fetching the URL at all. The page still may appear in search results if other sites link to it — Google knows it exists but can't read it.
+- `**<meta name="robots" content="noindex">`**: Allows the crawler to fetch the page but instructs it not to include the page in the index. The page will not appear in search results.
 
 For pages you want completely hidden from search, use `noindex`. For pages you don't want crawlers to waste budget on (e.g. internal APIs), use `robots.txt Disallow`. Never use both together for the same page — if robots.txt blocks the crawler, it can't read the noindex tag.
 
@@ -751,7 +761,7 @@ Next.js calls `generateMetadata` on the server before rendering, so the `<head>`
 
 Three approaches:
 
-1. **`rel="next"` / `rel="prev"`** (deprecated by Google but still used): Signal pagination relationship between pages.
+1. `**rel="next"` / `rel="prev"`** (deprecated by Google but still used): Signal pagination relationship between pages.
 2. **Canonical to page 1**: If pages 2+ are thin content, canonical all of them to page 1. Risky — page 2+ won't be indexed.
 3. **Independent canonical per page** (recommended): Each paginated page is unique, has its own canonical URL, and contains enough unique content. Include `?page=2` in the URL and canonical.
 
